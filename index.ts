@@ -1,12 +1,12 @@
-Object.defineProperty(exports, '__esModule', { value: true });
 const express = require('express');
+import { Request, Response } from 'express';
 
 const app = express();
-const port = 3000;
-app.get('/', function (req, res) {
+const port: number = 3000;
+app.get('/', (req: Request, res: Response) => {
   res.send('Vive le curry!');
 });
-app.listen(port, function (err) {
+app.listen(port, (err: Error) => {
   if (err) {
     return console.error(err);
   }
