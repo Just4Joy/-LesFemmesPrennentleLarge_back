@@ -13,7 +13,7 @@ surfStyleController.get('/', (req: Request, res: Response) => {
     })
     .catch((err: any) => {
       console.log(err);
-      res.status(500).send('Error retrieving cars from database');
+      res.status(500).send('Error retrieving surfstyles from database');
     });
 });
 
