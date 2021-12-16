@@ -1,11 +1,19 @@
 const express = require('express');
 import { Request, Response } from 'express';
+const { setupRoutes } = require('./router')
 
 const app = express();
-const port: number = 3000;
-app.get('/', (req: Request, res: Response) => {
-  res.send('Vive le curry!');
-});
+const port = process.env.PORT || 3000;
+
+app.use(express.json());
+
+setupRoutes(app);
+
+
+
+
+
+
 app.listen(port, (err: Error) => {
   if (err) {
     return console.error(err);
