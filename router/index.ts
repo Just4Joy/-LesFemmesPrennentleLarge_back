@@ -1,11 +1,13 @@
 import userController from '../controllers/user.controller';
 import surfStyleController from '../controllers/surfstyles.controller';
 import userTypeController from '../controllers/usertypes.controller';
+import regionController from '../controllers/region.controller';
 
 const setupRoutes = (app: any) => {
   app.use('/api/users', userController);
   app.use('/api/surfstyle', surfStyleController);
   app.use('/api/usertype', userTypeController);
+  app.use('/api/regions', regionController);
   /*  
   app.use('/api/sessions', userCtrl.userController)
   app.use('/api/region', userCtrl.userController)
