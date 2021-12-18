@@ -1,6 +1,8 @@
-const surfStyleController = require('express').Router();
-const SurfStyle = require('../models/surfstyle');
 import { Request, Response } from 'express';
+import express = require('express');
+import SurfStyle from '../models/surfstyle.model';
+
+const surfStyleController = express.Router();
 
 surfStyleController.get('/coucou', (req: Request, res: Response) => {
   res.status(200).send('hibou');
@@ -17,4 +19,4 @@ surfStyleController.get('/', (req: Request, res: Response) => {
     });
 });
 
-module.exports = { surfStyleController };
+export default surfStyleController;
