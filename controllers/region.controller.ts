@@ -1,12 +1,14 @@
-const regionController = require('express').Router();
-const Region = require('../models/region.model');
+import express = require('express');
 import { Request, Response } from 'express';
+import Region from '../models/region.model';
+
+const regionController = express.Router();
 
 // regionController.get('/', (req: Request, res: Response) => {
 //   res.status(200).send('coucou');
 // });
 
-////////////////////// GET ALL /////////////////////
+/// /////////////////// GET ALL /////////////////////
 regionController.get('/', (req: Request, res: Response) => {
   Region.findAll()
     .then((region: any) => {
@@ -17,12 +19,12 @@ regionController.get('/', (req: Request, res: Response) => {
     });
 });
 
-////////////////////// GET ONE BY ID /////////////////////
-regionController.get('/:id_region', (req: Request, res: Response) => {
-  const id_region = req.params.id_region;
-  Region.findOneById(id_region).then((region: any) => {
+/// /////////////////// GET ONE BY ID /////////////////////
+regionController.get('/:idRegion', (req: Request, res: Response) => {
+  const idRegion: number = parseInt(req.params.idRegion, 10);
+  Region.findOneById(idRegion).then((region: any) => {
     res.status(200).json(region);
   });
 });
 
-module.exports = { regionController };
+export default regionController;

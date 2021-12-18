@@ -7,14 +7,16 @@ const findAll = () => {
     .then((region: any) => region[0]);
 };
 
-const findOneById = (id_region: number) => {
+const findOneById = (idRegion: number) => {
   return connection
     .promise()
-    .query('SELECT * FROM region WHERE id_region = ?', [id_region])
+    .query('SELECT * FROM region WHERE id_region = ?', [idRegion])
     .then((region: any) => region[0][0]);
 };
 
-module.exports = {
+const Region = {
   findAll,
   findOneById,
 };
+
+export default Region;
