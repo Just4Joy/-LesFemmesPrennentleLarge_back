@@ -8,9 +8,13 @@ import { Request, Response } from 'express';
 
 ////////////////////// GET ALL /////////////////////
 regionController.get('/', (req: Request, res: Response) => {
-  Region.findAll().then((region: any) => {
-    res.status(200).json(region);
-  });
+  Region.findAll()
+    .then((region: any) => {
+      res.status(200).json(region);
+    })
+    .catch((err: any) => {
+      res.status(401).send(err);
+    });
 });
 
 ////////////////////// GET ONE BY ID /////////////////////
