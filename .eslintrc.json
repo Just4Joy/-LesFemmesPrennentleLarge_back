@@ -4,8 +4,6 @@
     "plugin:@typescript-eslint/recommended",
     "airbnb",
     "plugin:prettier/recommended"
-    
-
   ],
   "parser": "@typescript-eslint/parser",
   "plugins": ["@typescript-eslint", "prettier"],
@@ -17,9 +15,6 @@
     "react/prop-types": 0
   }
 }
-
-
-
 
 /* {
   "env": {
