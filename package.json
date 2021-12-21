@@ -26,8 +26,10 @@
     }
   },
   "dependencies": {
+    "cors": "^2.8.5",
     "dotenv": "^9.0.2",
     "express": "^4.16.4",
+    "joi": "^17.5.0",
     "mysql2": "^2.3.3"
   },
   "devDependencies": {
