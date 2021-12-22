@@ -1,54 +1,71 @@
 {
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module",
+    "project": "./tsconfig.json"
+  },
+  "plugins": ["@typescript-eslint"],
   "extends": [
     "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
-    "airbnb",
-    "plugin:prettier/recommended"
-  ],
-  "parser": "@typescript-eslint/parser",
-  "plugins": ["@typescript-eslint", "prettier"],
-  "rules": {
-    "@typescript-eslint/no-explicit-any": 0,
-    "@typescript-eslint/member-delimiter-style": 0,
-    "@typescript-eslint/interface-name-prefix": 0,
-    "@typescript-eslint/no-use-before-define": 0,
-    "react/prop-types": 0
-  }
+    "plugin:@typescript-eslint/recommended-requiring-type-checking"
+  ]
 }
 
-/* {
-  "env": {
-    "browser": true,
-    "es6": true
-  },
-  "extends": ["airbnb", "plugin:prettier/recommended"],
-  "parserOptions": {
-    "ecmaVersion": 12,
-    "sourceType": "module"
-  },
-  "rules": {
-    "indent": ["error", 2],
-    "linebreak-style": ["error", "unix"]
-  },
-  "overrides": [
-    // typescript
-    { "parser": "@typescript-eslint/parser",
-      "files": [".ts", ".tsx"],
-      "excludedFiles": ["*.test.js", "gatsby-node.js", "gatsby-config.js"],
-      "plugins": ["@typescript-eslint"],
-      "extends": [
-        "plugin:@typescript-eslint/eslint-recommended",
-        "plugin:@typescript-eslint/recommended",
-        "plugin:react/recommended",
-        "airbnb"
-      ],
-      "rules": {
-        "@typescript-eslint/no-explicit-any": 0,
-        "@typescript-eslint/member-delimiter-style": 0,
-        "@typescript-eslint/interface-name-prefix": 0,
-        "@typescript-eslint/no-use-before-define": 0,
-        "react/prop-types": 0
-      }
-    }
-  ]
-} */
+// {
+//   "extends": [
+//     "eslint:recommended",
+//     "plugin:@typescript-eslint/recommended",
+//     "airbnb",
+//     "plugin:prettier/recommended"
+//   ],
+//   "parser": "@typescript-eslint/parser",
+//   "plugins": ["@typescript-eslint", "prettier"],
+//   "rules": {
+//     "@typescript-eslint/no-explicit-any": 0,
+//     "@typescript-eslint/member-delimiter-style": 0,
+//     "@typescript-eslint/interface-name-prefix": 0,
+//     "@typescript-eslint/no-use-before-define": 0,
+//     "react/prop-types": 0
+//   }
+// }
+
+// /* {
+//   "env": {
+//     "browser": true,
+//     "es6": true
+//   },
+//   "extends": ["airbnb", "plugin:prettier/recommended"],
+//   "parserOptions": {
+//     "ecmaVersion": 12,
+//     "sourceType": "module"
+//   },
+//   "rules": {
+//     "indent": ["error", 2],
+//     "linebreak-style": ["error", "unix"]
+//   },
+//   "overrides": [
+//     // typescript
+//     { "parser": "@typescript-eslint/parser",
+//       "files": [".ts", ".tsx"],
+//       "excludedFiles": ["*.test.js", "gatsby-node.js", "gatsby-config.js"],
+//       "plugins": ["@typescript-eslint"],
+//       "extends": [
+//         "plugin:@typescript-eslint/eslint-recommended",
+//         "plugin:@typescript-eslint/recommended",
+//         "plugin:react/recommended",
+//         "airbnb"
+//       ],
+//       "rules": {
+//         "@typescript-eslint/no-explicit-any": 0,
+//         "@typescript-eslint/member-delimiter-style": 0,
+//         "@typescript-eslint/interface-name-prefix": 0,
+//         "@typescript-eslint/no-use-before-define": 0,
+//         "react/prop-types": 0
+//       }
+//     }
+//   ]
+// } */
