@@ -1,4 +1,4 @@
-import express = require('express');
+import express from 'express';
 import { Request, Response, NextFunction } from 'express';
 import Region from '../models/region';
 import IRegion from '../interfaces/IRegion';
@@ -20,13 +20,18 @@ regionController.get('/', (req: Request, res: Response, next: NextFunction) => {
 });
 
 /// /////////////////// GET ONE BY ID /////////////////////
-regionController.get('/:idRegion', (req: Request, res: Response, next: NextFunction) => {
-  const idRegion: number = parseInt(req.params.idRegion, 10);
-  Region.findOneById(idRegion).then((region: IRegion) => {
-    res.status(200).json(region);
-  }).catch((err: Error) => {
-    next(err);
-  });
-});
+regionController.get(
+  '/:idRegion',
+  (req: Request, res: Response, next: NextFunction) => {
+    const idRegion: number = parseInt(req.params.idRegion, 10);
+    Region.findOneById(idRegion)
+      .then((region: IRegion) => {
+        res.status(200).json(region);
+      })
+      .catch((err: Error) => {
+        next(err);
+      });
+  }
+);
 
 export default regionController;

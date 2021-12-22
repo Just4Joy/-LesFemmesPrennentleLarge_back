@@ -1,4 +1,4 @@
-import express = require('express');
+import express from 'express';
 import { Request, Response } from 'express';
 import User from '../models/user';
 import Schema from '../_utils/validator';
