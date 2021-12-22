@@ -1,29 +1,38 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import express = require('express');
-import { number } from 'joi';
-import Session from '../models/session.model';
+import Session from '../models/session';
+import ISession from '../interfaces/ISession';
+
 
 const sessionsController = express.Router();
 
-sessionsController.get('/', async (req: Request, res: Response) => {
-  const result = await Session.findSession();
-  res.status(200).json(result);
+sessionsController.get('/', async (_req: Request, res: Response,  next: NextFunction) => {
+  try {
+    const result = await Session.findSession();
+   return res.status(200).json(result)
+  }
+  catch(err: any) {
+    next(err)
+  }
+  
 });
 
-sessionsController.post('/', async (req: Request, res: Response) => {
-  let validationErrors = Session.validate(req.body);
+sessionsController.post('/', async (req: Request, res: Response,  next: NextFunction) => {
+  const session = req.body as ISession;
+  const validationErrors = Session.validate(req.body);
   if (validationErrors) {
     return res.status(422).json(validationErrors);
   }
-  const response: any = await Session.create(req.body);
+  const response: ISession[] = await Session.create(req.body);
   return res
     .status(200)
     .json({ id_session: response[0].insertId, ...req.body });
 });
 
-sessionsController.put('/:id_session', (req: Request, res: Response) => {
+sessionsController.put('/:id_session', (req: Request, res: Response, next: NextFunction) => {
   let existingSession: any = null;
   let validationErrors: any = null;
+  const {id_session} = req.params
   Session.findOne(req.params.id_session)
     .then((session) => {
       existingSession = session;

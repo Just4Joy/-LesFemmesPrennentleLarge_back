@@ -1,14 +1,12 @@
+import ISurfStyle from '../interfaces/ISurfStyle';
 import connection from '../_utils/db-config';
 
 const db = connection.promise();
 
-const findSurfStyles = () => {
-  const sql = `SELECT * FROM surf_style`;
-  return db.query(sql).then(([results]: any) => results);
+const findAll = () => {
+  return db.query<ISurfStyle[]>(`SELECT * FROM surf_styles`).then(([results]) => results);
 };
 
-const SurfStyle = {
-  findSurfStyles,
+export default {
+  findAll,
 };
-
-export default SurfStyle;

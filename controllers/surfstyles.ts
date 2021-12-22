@@ -1,21 +1,20 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import express = require('express');
-import SurfStyle from '../models/surfstyle.model';
-
+import SurfStyle from '../models/surfstyle';
+import ISurfStyle from '../interfaces/ISurfstyle';
 const surfStyleController = express.Router();
 
 surfStyleController.get('/coucou', (req: Request, res: Response) => {
   res.status(200).send('hibou');
 });
 
-surfStyleController.get('/', (req: Request, res: Response) => {
+surfStyleController.get('/', (req: Request, res: Response, next: NextFunction) => {
   SurfStyle.findSurfStyles()
-    .then((surfstyles: any) => {
+    .then((surfstyles: ISurfStyle[]) => {
       res.json(surfstyles);
     })
-    .catch((err: any) => {
-      console.log(err);
-      res.status(500).send('Error retrieving surfstyles from database');
+    .catch((err: Error) => {
+      next(err)
     });
 });
 

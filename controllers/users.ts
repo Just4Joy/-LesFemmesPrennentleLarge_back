@@ -1,6 +1,6 @@
 import express = require('express');
 import { Request, Response } from 'express';
-import User from '../models/user.model';
+import User from '../models/user';
 import Schema from '../_utils/validator';
 
 const userController = express.Router();

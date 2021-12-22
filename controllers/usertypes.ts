@@ -1,6 +1,8 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction  } from 'express';
 import express = require('express');
-import UserType from '../models/usertype.model';
+import UserType from '../models/usertype';
+import IUserType from '../interfaces/IUserType';
+
 
 const userTypeController = express.Router();
 
@@ -8,14 +10,13 @@ userTypeController.get('/coucou', (req: Request, res: Response) => {
   res.status(200).send('hibou');
 });
 
-userTypeController.get('/', (req: Request, res: Response) => {
+userTypeController.get('/', (req: Request, res: Response, next: NextFunction) => {
   UserType.findUserTypes()
-    .then((usertypes: any) => {
+    .then((usertypes: IUserType[]) => {
       res.json(usertypes);
     })
-    .catch((err: any) => {
-      console.log(err);
-      res.status(500).send('Error retrieving usertypes from database');
+    .catch((err: Error) => {
+     next(err)
     });
 });
 
