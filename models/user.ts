@@ -1,36 +1,45 @@
-import connection from '../_utils/db-config';
+import connection from '../helpers/db-config';
+import IUser from '../interfaces/IUser';
+import { ResultSetHeader } from 'mysql2';
+import { query } from 'express';
+//import { ErrorHandler } from '../helpers/errors';
 
 const findMany = () => {
-  const sql = 'SELECT * FROM user';
+  const sql = 'SELECT * FROM users';
   return connection
     .promise()
-    .query(sql, [])
-    .then(([results]: any) => results);
+    .query<IUser[]>(sql, [])
+    .then(([results]) => results);
 };
 
 const findByEmail = (email: string) => {
   return connection
     .promise()
-    .query('SELECT * FROM user where email = ?', [email])
+    .query<IUser[]>('SELECT * FROM users where email = ?', [email])
     .then(([results]) => results);
 };
 
-interface PayLoad {
-  firstname: string;
-  lastname: string;
-  city: string;
-  email: string;
-  password: string;
-  zipCode: string;
-  profilePic: unknown;
-  idSurfSkill: number;
-  favoriteSpot: string;
-  createdDate: Date;
-  idDepartement: number;
-  idSurfStyle: number;
-}
+const findOneById = (id: number) => {
+  return connection
+    .promise()
+    .query<IUser[]>('SELECT * FROM users where id_user = ?', [id])
+    .then(([results]) => results);
+};
 
-const create = (payload: PayLoad) => {
+const update = (data: any, id: number) => {
+  return connection
+    .promise()
+    .query<ResultSetHeader>('UPDATE users SET ? WHERE id_user = ?', [data, id])
+    .then(([results]) => results);
+};
+
+const destroy = (id: number) => {
+  return connection
+    .promise()
+    .query<IUser[]>('DELETE FROM users WHERE id_user = ?', [id]);
+};
+
+const create = (payload: IUser) => {
   const {
     firstname,
     lastname,
@@ -47,8 +56,8 @@ const create = (payload: PayLoad) => {
   } = payload;
   return connection
     .promise()
-    .query(
-      'INSERT INTO user (firstname, lastname, city, email, password_hash, zip_code, profile_pic, id_surf_skill, favorite_spot, created_date, id_departement, id_surf_style) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
+    .query<ResultSetHeader>(
+      'INSERT INTO users (firstname, lastname, city, email, password_hash, zip_code, profile_pic, id_surf_skill, favorite_spot, created_date, id_departement, id_surf_style) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
       [
         firstname,
         lastname,
@@ -70,6 +79,9 @@ const User = {
   findMany,
   create,
   findByEmail,
+  findOneById,
+  update,
+  destroy,
 };
 
 export default User;

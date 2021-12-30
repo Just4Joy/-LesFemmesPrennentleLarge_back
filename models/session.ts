@@ -1,4 +1,4 @@
-import connection from '../_utils/db-config';
+import connection from '../helpers/db-config';
 import Joi from 'joi';
 import ISession from '../interfaces/ISession';
 import { ResultSetHeader } from 'mysql2';
@@ -48,7 +48,10 @@ const findOne = (id_session: number) => {
     .then(([results]) => results[0]);
 };
 
-const update = (id_session: number, newAttributes: any): Promise<boolean> => {
+const update = (
+  id_session: number,
+  newAttributes: ISession
+): Promise<boolean> => {
   return connection
     .promise()
     .query<ResultSetHeader>('UPDATE sessions SET ? WHERE id_session = ?', [
@@ -73,7 +76,7 @@ const sessionExists = (req: Request, res: Response, next: NextFunction) => {
         next();
       }
     })
-    .catch((err) => next(err));
+    .catch((err: Error) => next(err));
 };
 
 const validateSession = (req: Request, res: Response, next: NextFunction) => {

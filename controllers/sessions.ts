@@ -23,9 +23,14 @@ sessionsController.get(
 sessionsController.post(
   '/',
   Session.validateSession,
-  async (req: Request, res: Response, _next: NextFunction) => {
-    const insertId: number = await Session.create(req.body);
-    return res.status(200).json({ id_session: insertId, ...req.body });
+  (req: Request, res: Response, next: NextFunction) => async () => {
+    try {
+      const session = req.body as ISession;
+      const insertId: number = await Session.create(session);
+      return res.status(200).json({ id_session: insertId, ...req.body });
+    } catch (err) {
+      next(err);
+    }
   }
 );
 
@@ -34,7 +39,8 @@ sessionsController.put(
   Session.sessionExists,
   Session.validateSession,
   (req: Request, res: Response, next: NextFunction) => {
-    Session.update(Number(req.params.id_session), req.body)
+    const session = req.body as ISession;
+    Session.update(Number(req.params.id_session), session)
       .then((sessionUpdated) => {
         if (sessionUpdated) {
           res.status(200).send('User updated');

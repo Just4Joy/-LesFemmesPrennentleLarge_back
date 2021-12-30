@@ -1,4 +1,4 @@
-import express from 'express'
+import express from 'express';
 import usersController from '../controllers/users';
 import surfStylesController from '../controllers/surfstyles';
 import userTypesController from '../controllers/usertypes';
