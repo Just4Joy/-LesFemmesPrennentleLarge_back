@@ -1,11 +1,15 @@
-import connection from '../_utils/db-config';
+import connection from '../helpers/db-config';
+import ISurfSkills from '../interfaces/ISurfskills';
+
 const db = connection.promise();
 
 const findSurfSkills = () => {
   let sql = `SELECT * FROM surf_skill`;
-  return db.query(sql).then(([results]: any) => results);
+  return db.query<ISurfSkills[]>(sql).then(([results]) => results);
 };
 
-module.exports = {
+const SurfSkills = {
   findSurfSkills,
 };
+
+export default SurfSkills;
