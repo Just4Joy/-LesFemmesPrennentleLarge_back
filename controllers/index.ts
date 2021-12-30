@@ -1,3 +1,4 @@
+import express from 'express';
 import usersController from '../controllers/users';
 import surfStylesController from '../controllers/surfstyles';
 import userTypesController from '../controllers/usertypes';
@@ -5,7 +6,7 @@ import regionsController from '../controllers/regions';
 import sessionsController from '../controllers/sessions';
 import departementsController from '../controllers/departements';
 
-const setupRoutes = (app: any) => {
+const setupRoutes = (app: express.Application) => {
   app.use('/api/users', usersController);
   app.use('/api/surfstyle', surfStylesController);
   app.use('/api/usertype', userTypesController);

@@ -1,4 +1,4 @@
-import express = require('express');
+import express from 'express';
 import { Request, Response, NextFunction } from 'express';
 import Departement from '../models/departement';
 import IDepartement from '../interfaces/IDepartement';

@@ -1,13 +1,13 @@
-import connection from '../_utils/db-config';
+import IUserType from '../interfaces/IUserType';
+import connection from '../helpers/db-config';
 
 const db = connection.promise();
 
-const findUserTypes = () => {
-  const sql = `SELECT * FROM user_type`;
-  return db.query(sql).then(([results]) => results);
-};
-const userType = {
-  findUserTypes,
+const findAll = () => {
+  const sql = `SELECT * FROM user_types`;
+  return db.query<IUserType[]>(sql).then(([results]) => results);
 };
 
-export default userType;
+export default {
+  findAll,
+};

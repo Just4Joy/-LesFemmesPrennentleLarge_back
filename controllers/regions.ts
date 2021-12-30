@@ -1,7 +1,7 @@
-import express = require('express');
-import { Request, Response } from 'express';
-import Region from '../models/region.model';
-
+import express from 'express';
+import { Request, Response, NextFunction } from 'express';
+import Region from '../models/region';
+import IRegion from '../interfaces/IRegion';
 const regionController = express.Router();
 
 // regionController.get('/', (req: Request, res: Response) => {
@@ -9,22 +9,29 @@ const regionController = express.Router();
 // });
 
 /// /////////////////// GET ALL /////////////////////
-regionController.get('/', (req: Request, res: Response) => {
+regionController.get('/', (req: Request, res: Response, next: NextFunction) => {
   Region.findAll()
-    .then((region: any) => {
-      res.status(200).json(region);
+    .then((regions: IRegion[]) => {
+      res.status(200).json(regions);
     })
-    .catch((err: any) => {
-      res.status(401).send(err);
+    .catch((err: Error) => {
+      next(err);
     });
 });
 
 /// /////////////////// GET ONE BY ID /////////////////////
-regionController.get('/:idRegion', (req: Request, res: Response) => {
-  const idRegion: number = parseInt(req.params.idRegion, 10);
-  Region.findOneById(idRegion).then((region: any) => {
-    res.status(200).json(region);
-  });
-});
+regionController.get(
+  '/:idRegion',
+  (req: Request, res: Response, next: NextFunction) => {
+    const idRegion: number = parseInt(req.params.idRegion, 10);
+    Region.findOneById(idRegion)
+      .then((region: IRegion) => {
+        res.status(200).json(region);
+      })
+      .catch((err: Error) => {
+        next(err);
+      });
+  }
+);
 
 export default regionController;

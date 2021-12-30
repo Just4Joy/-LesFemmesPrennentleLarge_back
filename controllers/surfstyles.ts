@@ -1,22 +1,24 @@
-import { Request, Response } from 'express';
-import express = require('express');
-import SurfStyle from '../models/surfstyle.model';
-
+import { Request, Response, NextFunction } from 'express';
+import express from 'express';
+import SurfStyle from '../models/surfstyle';
+import ISurfStyle from '../interfaces/ISurfStyle';
 const surfStyleController = express.Router();
 
 surfStyleController.get('/coucou', (req: Request, res: Response) => {
   res.status(200).send('hibou');
 });
 
-surfStyleController.get('/', (req: Request, res: Response) => {
-  SurfStyle.findSurfStyles()
-    .then((surfstyles: any) => {
-      res.json(surfstyles);
-    })
-    .catch((err: any) => {
-      console.log(err);
-      res.status(500).send('Error retrieving surfstyles from database');
-    });
-});
+surfStyleController.get(
+  '/',
+  (req: Request, res: Response, next: NextFunction) => {
+    SurfStyle.findAll()
+      .then((surfstyles: ISurfStyle[]) => {
+        res.json(surfstyles);
+      })
+      .catch((err: Error) => {
+        next(err);
+      });
+  }
+);
 
 export default surfStyleController;
