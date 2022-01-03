@@ -4,7 +4,7 @@ import { handleError } from './helpers/errors';
 import cors from 'cors';
 import 'dotenv/config';
 
-import setupRoutes from './router';
+import setupRoutes from './controllers/index';
 
 const app = express();
 const port = process.env.PORT || 3000;

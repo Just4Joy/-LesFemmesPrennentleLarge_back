@@ -1,17 +1,18 @@
-import connection from '../_utils/db-config';
+import connection from '../helpers/db-config';
+import IRegion from '../interfaces/IRegion';
 
 const findAll = () => {
   return connection
     .promise()
-    .query('SELECT * FROM region')
-    .then((region: any) => region[0]);
+    .query<IRegion[]>('SELECT * FROM regions')
+    .then(([region]) => region);
 };
 
 const findOneById = (idRegion: number) => {
   return connection
     .promise()
-    .query('SELECT * FROM region WHERE id_region = ?', [idRegion])
-    .then((region: any) => region[0][0]);
+    .query<IRegion[]>('SELECT * FROM regions WHERE id_region = ?', [idRegion])
+    .then(([[region]]) => region);
 };
 
 const Region = {

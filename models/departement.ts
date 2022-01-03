@@ -1,4 +1,4 @@
-import connection from '../_utils/db-config';
+import connection from '../helpers/db-config';
 import IDepartement from '../interfaces/IDepartement';
 
 const findAll = () => {
