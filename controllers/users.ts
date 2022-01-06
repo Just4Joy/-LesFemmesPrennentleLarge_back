@@ -19,14 +19,30 @@ userController.get('/', (async (
   }
 }) as RequestHandler);
 
-userController.post('/', (async (req: Request, res: Response) => {
+
+userController.get('/:id', (async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { id } = req.params as IUser
+  try {
+    const result: IUser = await User.findOneById(id);
+    console.log(result)
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+}) as RequestHandler);
+
+userController.post('/', User.validateUser, (async (req: Request, res: Response) => {
   const validation = Schema.validate(req.body);
   if (validation.error) {
     return res.status(422).json(validation.error.message);
   }
   const { email } = req.body as IUser;
-  const existingEmail: IUser[] = await User.findByEmail(email);
-  if (existingEmail[0]) {
+  const existingEmail: IUser = await User.findByEmail(email);
+  if (existingEmail) {
     return res.status(400).json('BAD REQUEST EMAIL ALREADY EXIST');
   }
   const user = req.body as IUser;
@@ -37,11 +53,11 @@ userController.post('/', (async (req: Request, res: Response) => {
 userController.put('/:idUser', (async (req: Request, res: Response) => {
   try {
     const { idUser } = req.params;
-    const foundUser: IUser[] = await User.findOneById(parseInt(idUser, 10));
+    const foundUser: IUser = await User.findOneById(parseInt(idUser, 10));
     console.log(foundUser);
     if (foundUser[0]) {
       const UpdatedUser = await User.update(req.body, parseInt(idUser, 10));
-      console.log(UpdatedUser)
+      console.log(UpdatedUser);
       return res.status(201).send('USER MODIFIED');
     }
     return res.status(401).send('USER NOT FOUND');
