@@ -1,6 +1,7 @@
 import { RowDataPacket } from 'mysql2';
 
 export default interface IUser extends RowDataPacket {
+  id_user: number;
   firstname: string;
   lastname: string;
   city: string;
@@ -13,4 +14,5 @@ export default interface IUser extends RowDataPacket {
   createdDate: Date;
   idDepartement: number;
   idSurfStyle: number;
+  admin: boolean;
 }

@@ -4,7 +4,7 @@ import IDepartement from '../interfaces/IDepartement';
 const findAll = () => {
   return connection
     .promise()
-    .query<IDepartement[]>('SELECT * FROM departements')
+    .query<IDepartement[]>('SELECT * FROM departments')
     .then(([departements]) => departements);
 };
 
