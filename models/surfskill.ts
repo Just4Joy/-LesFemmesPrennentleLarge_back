@@ -4,7 +4,7 @@ import ISurfSkills from '../interfaces/ISurfskills';
 const db = connection.promise();
 
 const findSurfSkills = () => {
-  const sql = `SELECT * FROM surf_skill`;
+  const sql = `SELECT * FROM surf_skills`;
   return db.query<ISurfSkills[]>(sql).then(([results]) => results);
 };
 

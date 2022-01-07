@@ -3,6 +3,7 @@ import { Request, Response, NextFunction, RequestHandler } from 'express';
 import User from '../models/user';
 import Schema from '../_utils/validator';
 import IUser from '../interfaces/IUser';
+import * as Auth from '../helpers/auth';
 
 const userController = express.Router();
 
@@ -50,7 +51,7 @@ userController.post('/', User.validateUser, (async (req: Request, res: Response)
   return res.status(200).json({ id_user: response[0].insertId, ...req.body });
 }) as RequestHandler);
 
-userController.put('/:idUser', (async (req: Request, res: Response) => {
+userController.put('/:idUser', Auth.getCurrentSession, User.validateUser, (async (req: Request, res: Response) => {
   try {
     const { idUser } = req.params;
     const foundUser: IUser = await User.findOneById(parseInt(idUser, 10));
@@ -66,7 +67,7 @@ userController.put('/:idUser', (async (req: Request, res: Response) => {
   }
 }) as RequestHandler);
 
-userController.delete('/:idUser', (async (req: Request, res: Response) => {
+userController.delete('/:idUser', Auth.getCurrentSession, (async (req: Request, res: Response) => {
   try {
     const { idUser } = req.params;
     const deletedUser = await User.destroy(parseInt(idUser, 10));
