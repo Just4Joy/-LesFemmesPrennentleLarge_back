@@ -8,4 +8,5 @@ export default interface ISession extends RowDataPacket {
   nb_hiki_max: number;
   id_departement: number;
   id_surf_style: number;
+  carpool:number;
 }

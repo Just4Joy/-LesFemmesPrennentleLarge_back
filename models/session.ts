@@ -92,6 +92,7 @@ const validateSession = (req: Request, res: Response, next: NextFunction) => {
     nb_hiki_max: Joi.number().integer().presence(required),
     id_departement: Joi.number().integer().presence(required),
     id_surf_style: Joi.number().integer().presence(required),
+    carpool: Joi.number().integer().presence(required)
   }).validate(req.body, { abortEarly: false }).error;
   if (errors) {
     next(new ErrorHandler(422, errors.message));

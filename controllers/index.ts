@@ -7,6 +7,7 @@ import sessionsController from '../controllers/sessions';
 import departementsController from '../controllers/departements';
 import weatherController from './weather';
 import surfskillsController from './surfskill';
+import authController from './auth';
 
 const setupRoutes = (app: express.Application) => {
   app.use('/api/users', usersController);
@@ -17,6 +18,7 @@ const setupRoutes = (app: express.Application) => {
   app.use('/api/departements', departementsController);
   app.use('/api/weather', weatherController);
   app.use('/api/surfskill', surfskillsController);
+  app.use('/api/login', authController);
 };
 
 export default setupRoutes;
