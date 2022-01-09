@@ -3,12 +3,14 @@ import cookieParser from 'cookie-parser';
 import { handleError } from './helpers/errors';
 import cors from 'cors';
 import 'dotenv/config';
+import helmet from 'helmet'
 
 import setupRoutes from './controllers/index';
 
 const app = express();
 const port = process.env.PORT || 3000;
 
+app.use(helmet())
 app.use(express.json());
 app.use(cors());
 app.use(cookieParser());
