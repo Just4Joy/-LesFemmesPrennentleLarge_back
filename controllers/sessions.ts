@@ -11,9 +11,10 @@ sessionsController.get(
   '/',
   (req: Request, res: Response, next: NextFunction) => {
     (async () => {
-      const limit: string = req.query.limit;
+      const limit = req.query.limit as string;
+      console.log(limit);
       try {
-        const sessions: ISession[] = await Session.findSession(limit);
+        const sessions: ISession[] = await Session.findSession(parseInt(limit));
         return res.status(200).json(sessions);
       } catch (err) {
         next(err);
