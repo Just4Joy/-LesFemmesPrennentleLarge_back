@@ -5,10 +5,17 @@ import { ResultSetHeader } from 'mysql2';
 import { ErrorHandler } from '../helpers/errors';
 import { Request, Response, NextFunction } from 'express';
 
-const findSession = () => {
+const findSession = (limit: string) => {
+  let sql: string = 'SELECT * FROM sessions';
+  let sqlValue: Array<string | number> = [];
+  if (limit) {
+    sql +=
+      ' INNER JOIN departments ON sessions.id_session=departments.id_department INNER JOIN regions ON departments.id_department=regions.id_region INNER JOIN surf_styles ON sessions.id_session=surf_styles.id_surf_style LIMIT ?';
+    sqlValue.push(parseInt(limit));
+  }
   return connection
     .promise()
-    .query<ISession[]>('SELECT * FROM sessions', [])
+    .query<ISession[]>(sql, sqlValue)
     .then(([results]) => results);
 };
 
@@ -92,7 +99,7 @@ const validateSession = (req: Request, res: Response, next: NextFunction) => {
     nb_hiki_max: Joi.number().integer().presence(required),
     id_departement: Joi.number().integer().presence(required),
     id_surf_style: Joi.number().integer().presence(required),
-    carpool: Joi.number().integer().presence(required)
+    carpool: Joi.number().integer().presence(required),
   }).validate(req.body, { abortEarly: false }).error;
   if (errors) {
     next(new ErrorHandler(422, errors.message));
