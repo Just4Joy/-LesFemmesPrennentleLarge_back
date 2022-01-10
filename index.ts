@@ -1,4 +1,4 @@
-import express = require('express');
+import express, { Request, Response, NextFunction } from 'express';
 import cookieParser from 'cookie-parser';
 import { handleError } from './helpers/errors';
 import cors from 'cors';
@@ -12,13 +12,25 @@ import setupRoutes from './controllers/index';
 const app = express();
 const port = process.env.PORT || 3000;
 
+const corsOptions: cors.CorsOptions = {
+  origin: 'http://localhost:3001',
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 app.use(helmet());
 app.use(express.json());
-app.use(cors());
 app.use(cookieParser());
 
 //Options par défault de fileUpload
 // app.use(fileUpload());
+
+//middleware perso pour ajouter les headers nécessaires à react-admin
+app.use((req: Request, res: Response, next: NextFunction) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Access-Control-Expose-Headers', 'Content-Range');
+  next();
+});
 
 setupRoutes(app);
 
