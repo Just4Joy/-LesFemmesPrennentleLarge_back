@@ -1,6 +1,7 @@
 import connection from '../helpers/db-config';
 import Joi from 'joi';
 import ISession from '../interfaces/ISession';
+import IUser from '../interfaces/IUser';
 import { ResultSetHeader } from 'mysql2';
 import { ErrorHandler } from '../helpers/errors';
 import { Request, Response, NextFunction } from 'express';
@@ -110,6 +111,26 @@ const validateSession = (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+
+const subscribe = (id_user: number, id_session: number) => {
+ return connection.promise().query<ResultSetHeader>('INSERT INTO users_has_sessions (id_user, id_session) VALUES (?,?)',[id_user,id_session])
+ .then(([result]) => result)
+}
+
+const unsubscribe = (id_user: number, id_session:number) => {
+  return connection.promise().query<ResultSetHeader>('DELETE FROM users_has_sessions WHERE id_user = ? AND id_session = ?',[id_user,id_session])
+}
+
+const checkIfUserHasSubscribe = (id_user: number, id_session:number) => {
+  return connection.promise().query<ResultSetHeader>('SELECT * FROM users_has_sessions WHERE id_user = ? AND id_session = ?',[id_user,id_session])
+.then(([result]) => result)
+}
+
+const allUserBySession = (id_session:number) => {
+  return connection.promise().query<ResultSetHeader>('SELECT users_has_sessions.id_session, users_has_sessions.id_user, users.firstname, users.lastname FROM users_has_sessions INNER JOIN users ON users_has_sessions.id_user = users.id_user WHERE id_session = ?' ,[id_session])
+  .then(([result]) => result)
+}
+
 export default {
   findSession,
   create,
@@ -117,4 +138,9 @@ export default {
   findOne,
   update,
   sessionExists,
+  subscribe,
+  unsubscribe,
+  checkIfUserHasSubscribe,
+  allUserBySession
+
 };
