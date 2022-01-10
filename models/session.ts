@@ -9,10 +9,12 @@ const findSession = (limit: number) => {
   let sql: string =
     'SELECT * FROM sessions INNER JOIN departments ON sessions.id_departement=departments.id_department INNER JOIN regions ON departments.id_region=regions.id_region INNER JOIN surf_styles ON sessions.id_surf_style=surf_styles.id_surf_style';
   let sqlValue: Array<string | number> = [];
-  if (limit !== undefined) {
+  console.log(limit);
+  if (limit) {
     sql += ' LIMIT ?';
     sqlValue.push(limit);
   }
+
   return connection
     .promise()
     .query<ISession[]>(sql, sqlValue)
