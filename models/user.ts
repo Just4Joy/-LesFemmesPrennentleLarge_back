@@ -62,7 +62,8 @@ const validateLogin = (req: Request, res: Response, next: NextFunction) => {
 };
 
 const findMany = () => {
-  const sql = 'SELECT * FROM users';
+  const sql =
+    'SELECT u.city, u.created_date, u.email, u.favorite_spot, u.firstname, d.department_name as department, sk.name as surf_skill, st.name_user as surf_style, u.id_user, u.lastname, u.password, u.profile_pic, u.wahine, u.zip_code FROM users u INNER JOIN departments d ON u.id_departement = d.id_department INNER JOIN surf_skills sk ON u.id_surf_skill = sk.id_surf_skill INNER JOIN surf_styles st ON u.id_surf_style = st.id_surf_style';
   return connection
     .promise()
     .query<IUser[]>(sql, [])
@@ -79,7 +80,10 @@ const findByEmail = (email: string): Promise<IUser> => {
 const findOneById = (id: number): Promise<IUser> => {
   return connection
     .promise()
-    .query<IUser[]>('SELECT * FROM users where id_user = ?', [id])
+    .query<IUser[]>(
+      'SELECT u.city, u.created_date, u.email, u.favorite_spot, u.firstname, d.department_name as department, sk.name as surf_skill, st.name_user as surf_style, u.id_user, u.lastname, u.password, u.profile_pic, u.wahine, u.zip_code FROM users u INNER JOIN departments d ON u.id_departement = d.id_department INNER JOIN surf_skills sk ON u.id_surf_skill = sk.id_surf_skill INNER JOIN surf_styles st ON u.id_surf_style = st.id_surf_style WHERE id_user = ?',
+      [id]
+    )
     .then(([results]) => results[0]);
 };
 
