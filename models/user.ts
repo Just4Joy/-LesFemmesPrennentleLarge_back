@@ -60,7 +60,7 @@ const validateLogin = (req: Request, res: Response, next: NextFunction) => {
 };
 
 const findMany = () => {
-  const sql = 'SELECT * FROM users';
+  const sql = 'SELECT id_user,firstname,lastname,city,email,zip_code,profile_pic,id_surf_skill,favorite_spot,created_date,id_departement,id_surf_style FROM users';
   return connection
     .promise()
     .query<IUser[]>(sql, [])

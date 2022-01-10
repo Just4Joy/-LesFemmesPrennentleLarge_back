@@ -28,9 +28,14 @@ userController.get('/:id', (async (
 ) => {
   const { id } = req.params as IUser
   try {
-    const result: IUser = await User.findOneById(id);
+    const result: IUser = await User.findOneById(parseInt(id,10));
     console.log(result)
-    res.status(200).json(result);
+    if(result) {
+     const {password, ...rest } = result
+     return res.status(200).json(rest);
+    }
+    else return res.status(404).json('NOT FOUND')
+    
   } catch (err) {
     next(err);
   }
