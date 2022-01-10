@@ -36,7 +36,7 @@ const validateUser = (req: Request, res: Response, next: NextFunction) => {
     zipCode: Joi.string().max(45).presence(required),
     idSurfSkill: Joi.number().presence(required),
     favoriteSpot: Joi.string().max(45).presence(required),
-    idDepartement:Joi.number().presence(required),
+    idDepartement: Joi.number().presence(required),
     idSurfStyle: Joi.number().presence(required),
     admin: Joi.boolean().optional(),
   }).validate(req.body, { abortEarly: false }).error;
@@ -60,7 +60,8 @@ const validateLogin = (req: Request, res: Response, next: NextFunction) => {
 };
 
 const findMany = () => {
-  const sql = 'SELECT * FROM users';
+  const sql =
+    'SELECT u.city, u.created_date, u.email, u.favorite_spot, u.firstname, d.department_name, sk.name, st.name_user, u.id_user, u.lastname, u.password, u.profile_pic, u.wahine, u.zip_code FROM users u INNER JOIN departments d ON u.id_departement = d.id_department INNER JOIN surf_skills sk ON u.id_surf_skill = sk.id_surf_skill INNER JOIN surf_styles st ON u.id_surf_style = st.id_surf_style';
   return connection
     .promise()
     .query<IUser[]>(sql, [])
@@ -95,9 +96,12 @@ const destroy = (id: number) => {
 };
 
 const create = async (payload: IUser) => {
-  console.log(payload)
-  const createdDateServ = new Date().toISOString().slice(0, 19).replace('T', ' ');
-  console.log(createdDateServ)
+  console.log(payload);
+  const createdDateServ = new Date()
+    .toISOString()
+    .slice(0, 19)
+    .replace('T', ' ');
+  console.log(createdDateServ);
   const {
     firstname,
     lastname,
@@ -113,7 +117,6 @@ const create = async (payload: IUser) => {
     idSurfStyle,
   } = payload;
   const hashedPassword = await hashPassword(password);
-
 
   return connection
     .promise()
