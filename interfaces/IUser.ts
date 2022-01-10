@@ -7,12 +7,12 @@ export default interface IUser extends RowDataPacket {
   city: string;
   email: string;
   password: string;
-  zipCode: string;
-  profilePic: unknown;
-  idSurfSkill: number;
-  favoriteSpot: string;
-  createdDate: Date;
-  idDepartement: number;
-  idSurfStyle: number;
-  admin: boolean;
+  zip_code: string;
+  profile_pic: unknown;
+  id_surf_skill: number;
+  favorite_spot: string;
+  created_date: Date;
+  id_departement: number;
+  id_surf_style: number;
+  wahine: boolean;
 }

@@ -3,7 +3,7 @@ import IUser from '../interfaces/IUser';
 import { ResultSetHeader } from 'mysql2';
 import { query } from 'express';
 import argon2 from 'argon2';
-import Joi from 'joi';
+import Joi, { optional } from 'joi';
 import { ErrorHandler } from '../helpers/errors';
 import { Request, Response, NextFunction } from 'express';
 
@@ -33,12 +33,14 @@ const validateUser = (req: Request, res: Response, next: NextFunction) => {
     city: Joi.string().max(100).presence(required),
     email: Joi.string().email().max(100).presence(required),
     password: Joi.string().min(8).max(15).presence(required),
-    zipCode: Joi.string().max(45).presence(required),
-    idSurfSkill: Joi.number().presence(required),
-    favoriteSpot: Joi.string().max(45).presence(required),
-    idDepartement: Joi.number().presence(required),
-    idSurfStyle: Joi.number().presence(required),
-    admin: Joi.boolean().optional(),
+    zip_code: Joi.string().max(45).presence(required),
+    profile_pic: Joi.string().max(250).presence(required),
+    id_surf_skill: Joi.number().presence(required),
+    favorite_spot: Joi.string().max(45).presence(required),
+    created_date: Joi.date().optional(), /// domifiier pour required
+    id_departement: Joi.number().presence(required),
+    id_surf_style: Joi.number().presence(required),
+    wahine: Joi.boolean().truthy(1).falsy(0).presence(required),
   }).validate(req.body, { abortEarly: false }).error;
   if (errors) {
     next(new ErrorHandler(422, errors.message));
@@ -111,33 +113,35 @@ const create = async (payload: IUser) => {
     city,
     email,
     password,
-    zipCode,
-    profilePic,
-    idSurfSkill,
-    favoriteSpot,
-    createdDate,
-    idDepartement,
-    idSurfStyle,
+    zip_code,
+    profile_pic,
+    id_surf_skill,
+    favorite_spot,
+    created_date,
+    id_departement,
+    id_surf_style,
+    wahine,
   } = payload;
   const hashedPassword = await hashPassword(password);
 
   return connection
     .promise()
     .query<ResultSetHeader>(
-      'INSERT INTO users (firstname, lastname, city, email, password, zip_code, profile_pic, id_surf_skill, favorite_spot, created_date, id_departement, id_surf_style) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
+      'INSERT INTO users (firstname, lastname, city, email, password, zip_code, profile_pic, id_surf_skill, favorite_spot, created_date, id_departement, id_surf_style, wahine) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)',
       [
         firstname,
         lastname,
         city,
         email,
         hashedPassword,
-        zipCode,
-        profilePic,
-        idSurfSkill,
-        favoriteSpot,
-        createdDateServ,
-        idDepartement,
-        idSurfStyle,
+        zip_code,
+        profile_pic,
+        id_surf_skill,
+        favorite_spot,
+        created_date,
+        id_departement,
+        id_surf_style,
+        wahine,
       ]
     );
 };

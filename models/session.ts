@@ -5,15 +5,14 @@ import { ResultSetHeader } from 'mysql2';
 import { ErrorHandler } from '../helpers/errors';
 import { Request, Response, NextFunction } from 'express';
 
-const findSession = (limit: number = 0) => {
+const findSession = (limit: number) => {
   let sql: string =
     'SELECT * FROM sessions INNER JOIN departments ON sessions.id_departement=departments.id_department INNER JOIN regions ON departments.id_region=regions.id_region INNER JOIN surf_styles ON sessions.id_surf_style=surf_styles.id_surf_style';
   let sqlValue: Array<string | number> = [];
-  if (limit > 0) {
+  if (limit !== undefined) {
     sql += ' LIMIT ?';
     sqlValue.push(limit);
   }
-  console.log(sql);
   return connection
     .promise()
     .query<ISession[]>(sql, sqlValue)
