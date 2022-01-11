@@ -58,7 +58,7 @@ userController.put(
       const { idUser } = req.params;
       const foundUser: IUser = await User.findOneById(parseInt(idUser, 10));
       console.log(foundUser);
-      if (foundUser[0]) {
+      if (foundUser) {
         const UpdatedUser = await User.update(req.body, parseInt(idUser, 10));
         console.log(UpdatedUser);
         return res.status(201).send('USER MODIFIED');
