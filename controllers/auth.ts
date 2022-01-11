@@ -4,6 +4,7 @@ import IUser from '../interfaces/IUser';
 import { ErrorHandler } from '../helpers/errors';
 import { calculateToken, getCurrentSession } from '../helpers/auth';
 import express from 'express';
+import { cp } from 'fs';
 
 const authController = express.Router();
 
@@ -16,17 +17,20 @@ authController.post('/', (async (
     const { email, password } = req.body as IUser;
 
     const user: IUser = await User.findByEmail(email);
+
     if (!user) throw new ErrorHandler(401, 'This user does not exist');
     else {
       const passwordIsCorrect: boolean = await User.verifyPassword(
         password,
         user.password
       );
+      console.log(passwordIsCorrect);
       if (passwordIsCorrect) {
         const token = calculateToken(email, Number(user.id_user), user.wahine);
+        console.log(token);
         res.cookie('user_token', token);
         res.json({
-          id: user.id_user,
+          id_user: user.id_user,
           firstname: user.firstname,
           wahine: user.wahine,
         });

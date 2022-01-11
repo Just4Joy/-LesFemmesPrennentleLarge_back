@@ -26,11 +26,11 @@ app.use(cookieParser());
 // app.use(fileUpload());
 
 //middleware perso pour ajouter les headers nécessaires à react-admin
-app.use((req: Request, res: Response, next: NextFunction) => {
-  res.setHeader('Content-Type', 'application/json');
-  res.setHeader('Access-Control-Expose-Headers', 'Content-Range');
-  next();
-});
+// app.use((req: Request, res: Response, next: NextFunction) => {
+//   res.setHeader('Content-Type', 'application/json');
+//   res.setHeader('Access-Control-Expose-Headers', 'Content-Range');
+//   next();
+// });
 
 setupRoutes(app);
 
