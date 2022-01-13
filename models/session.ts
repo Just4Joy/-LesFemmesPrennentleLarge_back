@@ -8,14 +8,27 @@ import { Request, Response, NextFunction } from 'express';
 
 const findSession = (limit: number) => {
   let sql: string =
-    'SELECT * FROM sessions INNER JOIN departments ON sessions.id_departement=departments.id_department INNER JOIN regions ON departments.id_region=regions.id_region INNER JOIN surf_styles ON sessions.id_surf_style=surf_styles.id_surf_style';
+    'SELECT *, DATE_FORMAT(date, "%d/%m/%Y") AS nice_date, DATE_FORMAT(date, "%kh%i") AS nice_time FROM sessions INNER JOIN departments ON sessions.id_departement=departments.id_department INNER JOIN regions ON departments.id_region=regions.id_region INNER JOIN surf_styles ON sessions.id_surf_style=surf_styles.id_surf_style';
   let sqlValue: Array<string | number> = [];
-  console.log(limit);
   if (limit) {
     sql += ' LIMIT ?';
     sqlValue.push(limit);
   }
 
+  return connection
+    .promise()
+    .query<ISession[]>(sql, sqlValue)
+    .then(([results]) => results);
+};
+
+const findSessionByRegionId = (limit: number) => {
+  let sql: string =
+    'SELECT *, DATE_FORMAT(date, "%d/%m/%Y") AS nice_date, DATE_FORMAT(date, "%kh%i") AS nice_time FROM sessions INNER JOIN departments ON sessions.id_departement=departments.id_department INNER JOIN regions ON departments.id_region=regions.id_region INNER JOIN surf_styles ON sessions.id_surf_style=surf_styles.id_surf_style';
+  let sqlValue: Array<string | number> = [];
+  if (limit) {
+    sql += ' LIMIT ?';
+    sqlValue.push(limit);
+  }
   return connection
     .promise()
     .query<ISession[]>(sql, sqlValue)
@@ -31,11 +44,13 @@ const create = (session: ISession): Promise<number> => {
     nb_hiki_max,
     id_departement,
     id_surf_style,
+    carpool,
+    id_user,
   } = session;
   return connection
     .promise()
     .query<ResultSetHeader>(
-      'INSERT INTO sessions (name, date, spot_name, adress, nb_hiki_max, id_departement, id_surf_style) VALUES (?,?,?,?,?,?,?)',
+      'INSERT INTO sessions (name, date, spot_name, adress, nb_hiki_max, id_departement, id_surf_style, carpool, id_user) VALUES (?,?,?,?,?,?,?,?,?)',
       [
         name,
         date,
@@ -44,6 +59,8 @@ const create = (session: ISession): Promise<number> => {
         nb_hiki_max,
         id_departement,
         id_surf_style,
+        carpool,
+        id_user,
       ]
     )
     .then(([results]) => results.insertId);
@@ -52,9 +69,10 @@ const create = (session: ISession): Promise<number> => {
 const findOne = (id_session: number) => {
   return connection
     .promise()
-    .query<ISession[]>('SELECT * FROM sessions WHERE id_session = ?', [
-      id_session,
-    ])
+    .query<ISession[]>(
+      'SELECT *, DATE_FORMAT(date, "%d/%m/%Y") AS nice_date, DATE_FORMAT(date, "%kh%i") AS nice_time FROM sessions WHERE id_session = ?',
+      [id_session]
+    )
     .then(([results]) => results[0]);
 };
 
@@ -62,6 +80,7 @@ const update = (
   id_session: number,
   newAttributes: ISession
 ): Promise<boolean> => {
+  console.log(newAttributes);
   return connection
     .promise()
     .query<ResultSetHeader>('UPDATE sessions SET ? WHERE id_session = ?', [
@@ -103,6 +122,7 @@ const validateSession = (req: Request, res: Response, next: NextFunction) => {
     id_departement: Joi.number().integer().presence(required),
     id_surf_style: Joi.number().integer().presence(required),
     carpool: Joi.number().integer().presence(required),
+    id_user: Joi.number().integer().presence(required),
   }).validate(req.body, { abortEarly: false }).error;
   if (errors) {
     next(new ErrorHandler(422, errors.message));
@@ -111,25 +131,44 @@ const validateSession = (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-
 const subscribe = (id_user: number, id_session: number) => {
- return connection.promise().query<ResultSetHeader>('INSERT INTO users_has_sessions (id_user, id_session) VALUES (?,?)',[id_user,id_session])
- .then(([result]) => result)
-}
+  return connection
+    .promise()
+    .query<ResultSetHeader>(
+      'INSERT INTO users_has_sessions (id_user, id_session) VALUES (?,?)',
+      [id_user, id_session]
+    )
+    .then(([result]) => result);
+};
 
-const unsubscribe = (id_user: number, id_session:number) => {
-  return connection.promise().query<ResultSetHeader>('DELETE FROM users_has_sessions WHERE id_user = ? AND id_session = ?',[id_user,id_session])
-}
+const unsubscribe = (id_user: number, id_session: number) => {
+  return connection
+    .promise()
+    .query<ResultSetHeader>(
+      'DELETE FROM users_has_sessions WHERE id_user = ? AND id_session = ?',
+      [id_user, id_session]
+    );
+};
 
-const checkIfUserHasSubscribe = (id_user: number, id_session:number) => {
-  return connection.promise().query<ResultSetHeader>('SELECT * FROM users_has_sessions WHERE id_user = ? AND id_session = ?',[id_user,id_session])
-.then(([result]) => result)
-}
+const checkIfUserHasSubscribe = (id_user: number, id_session: number) => {
+  return connection
+    .promise()
+    .query<ResultSetHeader>(
+      'SELECT * FROM users_has_sessions WHERE id_user = ? AND id_session = ?',
+      [id_user, id_session]
+    )
+    .then(([result]) => result);
+};
 
-const allUserBySession = (id_session:number) => {
-  return connection.promise().query<ResultSetHeader>('SELECT users_has_sessions.id_session, users_has_sessions.id_user, users.firstname, users.lastname FROM users_has_sessions INNER JOIN users ON users_has_sessions.id_user = users.id_user WHERE id_session = ?' ,[id_session])
-  .then(([result]) => result)
-}
+const allUserBySession = (id_session: number) => {
+  return connection
+    .promise()
+    .query<ResultSetHeader>(
+      'SELECT users_has_sessions.id_session, users_has_sessions.id_user, users.firstname, users.lastname FROM users_has_sessions INNER JOIN users ON users_has_sessions.id_user = users.id_user WHERE id_session = ?',
+      [id_session]
+    )
+    .then(([result]) => result);
+};
 
 export default {
   findSession,
@@ -141,6 +180,6 @@ export default {
   subscribe,
   unsubscribe,
   checkIfUserHasSubscribe,
-  allUserBySession
-
+  allUserBySession,
+  findSessionByRegionId,
 };
