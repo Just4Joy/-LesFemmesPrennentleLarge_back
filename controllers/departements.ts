@@ -19,4 +19,18 @@ departementsController.get(
   }
 );
 
+departementsController.get(
+  '/:id',
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params as IDepartement;
+    try {
+      const result: IDepartement = await Departement.findDepartmentById(id);
+      console.log(result);
+      res.status(200).json(result);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
 export default departementsController;

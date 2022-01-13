@@ -21,4 +21,18 @@ surfStyleController.get(
   }
 );
 
+surfStyleController.get(
+  '/:id',
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params as ISurfStyle;
+    try {
+      const result: ISurfStyle = await SurfStyle.findSurfStyleById(id);
+      console.log(result);
+      res.status(200).json(result);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
 export default surfStyleController;
