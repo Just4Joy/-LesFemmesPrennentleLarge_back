@@ -1,20 +1,19 @@
 import connection from '../helpers/db-config';
-import IDepartement from '../interfaces/IDepartement';
+import IDepartment from '../interfaces/IDepartment';
 
 const findAll = () => {
   return connection
     .promise()
-    .query<IDepartement[]>('SELECT * FROM departments')
-    .then(([departements]) => departements);
+    .query<IDepartment[]>('SELECT * FROM departments')
+    .then(([departments]) => departments);
 };
 
 const findDepartmentById = (id: number) => {
   return connection
     .promise()
-    .query<IDepartement[]>(
-      `SELECT * FROM departments WHERE id_department = ?`,
-      [id]
-    )
+    .query<IDepartment[]>(`SELECT * FROM departments WHERE id_department = ?`, [
+      id,
+    ])
     .then(([results]) => results[0]);
 };
 
