@@ -8,6 +8,17 @@ const findAll = () => {
     .then(([departements]) => departements);
 };
 
+const findDepartmentById = (id: number) => {
+  return connection
+    .promise()
+    .query<IDepartement[]>(
+      `SELECT * FROM departments WHERE id_department = ?`,
+      [id]
+    )
+    .then(([results]) => results[0]);
+};
+
 export default {
   findAll,
+  findDepartmentById,
 };
