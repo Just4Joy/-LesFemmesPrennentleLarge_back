@@ -30,18 +30,18 @@ const validateUser = (req: Request, res: Response, next: NextFunction) => {
   const errors = Joi.object({
     firstname: Joi.string().max(100).presence(required),
     lastname: Joi.string().max(100).presence(required),
-    city: Joi.string().max(100).presence(required),
+    city: Joi.string().max(100).optional(),
     email: Joi.string().email().max(100).presence(required),
     password: Joi.string().min(8).max(15).presence(required),
-    zip_code: Joi.string().max(45).presence(required),
-    profile_pic: Joi.string().max(250).presence(required),
-    id_surf_skill: Joi.number().presence(required),
-    favorite_spot: Joi.string().max(45).presence(required),
+    zip_code: Joi.string().max(45).optional(),
+    profile_pic: Joi.string().max(250).optional(),
+    id_surf_skill: Joi.number().optional(),
+    favorite_spot: Joi.string().optional(),
     created_date: Joi.date().optional(), /// domifiier pour required
-    id_departement: Joi.number().presence(required),
-    id_surf_style: Joi.number().presence(required),
+    id_departement: Joi.number().optional(),
+    id_surf_style: Joi.number().optional(),
     wahine: Joi.boolean().truthy(1).falsy(0).presence(required),
-    desc: Joi.string().max(255).presence(required),
+    desc: Joi.string().max(255).optional(),
     phone: Joi.string().max(10).presence(required),
   }).validate(req.body, { abortEarly: false }).error;
   if (errors) {
@@ -108,18 +108,10 @@ const create = async (payload: IUser) => {
   const {
     firstname,
     lastname,
-    city,
     email,
     password,
-    zip_code,
-    profile_pic,
-    id_surf_skill,
-    favorite_spot,
     created_date,
-    id_departement,
-    id_surf_style,
     wahine,
-    desc,
     phone,
   } = payload;
   const hashedPassword = await hashPassword(password);
@@ -127,22 +119,14 @@ const create = async (payload: IUser) => {
   return connection
     .promise()
     .query<ResultSetHeader>(
-      'INSERT INTO users (firstname, lastname, city, email, password, zip_code, profile_pic, id_surf_skill, favorite_spot, created_date, id_departement, id_surf_style, wahine, desc, phone) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+      'INSERT INTO users (firstname, lastname, email, password, created_date, wahine, phone) VALUES (?,?,?,?,?,?,?)',
       [
         firstname,
         lastname,
-        city,
         email,
         hashedPassword,
-        zip_code,
-        profile_pic,
-        id_surf_skill,
-        favorite_spot,
         created_date,
-        id_departement,
-        id_surf_style,
         wahine,
-        desc,
         phone,
       ]
     );
