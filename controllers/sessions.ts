@@ -12,9 +12,28 @@ sessionsController.get(
   '/',
   (req: Request, res: Response, next: NextFunction) => {
     (async () => {
-      const limit = req.query.limit as string;
+      const region = req.query.region as string;
       try {
-        const sessions: ISession[] = await Session.findSession(parseInt(limit));
+        const sessions: ISession[] = await Session.findSession(
+          parseInt(region)
+        );
+        return res.status(200).json(sessions);
+      } catch (err) {
+        next(err);
+      }
+    })();
+  }
+);
+
+sessionsController.get(
+  '/dates',
+  (req: Request, res: Response, next: NextFunction) => {
+    (async () => {
+      const id_region = req.query.region as string;
+      try {
+        const sessions: ISession[] | void = await Session.findSessionDate(
+          parseInt(id_region)
+        );
         return res.status(200).json(sessions);
       } catch (err) {
         next(err);
@@ -31,6 +50,23 @@ sessionsController.get(
       try {
         const session: ISession = await Session.findOne(id);
         return res.status(200).json(session);
+      } catch (err) {
+        next(err);
+      }
+    })();
+  }
+);
+
+sessionsController.get(
+  '/regions/:id',
+  (req: Request, res: Response, next: NextFunction) => {
+    (async () => {
+      const id_region = req.params.id as string;
+      try {
+        const sessions: ISession[] = await Session.findSessionByRegionId(
+          parseInt(id_region)
+        );
+        return res.status(200).json(sessions);
       } catch (err) {
         next(err);
       }

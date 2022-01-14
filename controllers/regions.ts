@@ -4,10 +4,6 @@ import Region from '../models/region';
 import IRegion from '../interfaces/IRegion';
 const regionController = express.Router();
 
-// regionController.get('/', (req: Request, res: Response) => {
-//   res.status(200).send('coucou');
-// });
-
 /// /////////////////// GET ALL /////////////////////
 regionController.get('/', (req: Request, res: Response, next: NextFunction) => {
   Region.findAll()

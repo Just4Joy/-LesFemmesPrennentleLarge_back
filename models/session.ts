@@ -6,13 +6,14 @@ import { ResultSetHeader } from 'mysql2';
 import { ErrorHandler } from '../helpers/errors';
 import { Request, Response, NextFunction } from 'express';
 
-const findSession = (limit: number) => {
+const findSession = (region: number) => {
   let sql: string =
-    'SELECT *, DATE_FORMAT(date, "%d/%m/%Y") AS nice_date, DATE_FORMAT(date, "%kh%i") AS nice_time FROM sessions INNER JOIN departments ON sessions.id_departement=departments.id_department INNER JOIN regions ON departments.id_region=regions.id_region INNER JOIN surf_styles ON sessions.id_surf_style=surf_styles.id_surf_style';
+    'SELECT sessions.name, spot_name, adress, nb_hiki_max, id_departement, id_surf_style, carpool, id_user, DATE_FORMAT(date, "%d/%m/%Y") AS nice_date, DATE_FORMAT(date, "%kh%i") AS nice_time FROM sessions';
   let sqlValue: Array<string | number> = [];
-  if (limit) {
-    sql += ' LIMIT ?';
-    sqlValue.push(limit);
+  if (region) {
+    sql +=
+      ' INNER JOIN departments ON sessions.id_departement=departments.id_department INNER JOIN regions ON departments.id_region=regions.id_region WHERE departments.id_region = ?';
+    sqlValue.push(region);
   }
 
   return connection
@@ -21,13 +22,36 @@ const findSession = (limit: number) => {
     .then(([results]) => results);
 };
 
-const findSessionByRegionId = (limit: number) => {
+const findThreeSession = (limit: number) => {
   let sql: string =
-    'SELECT *, DATE_FORMAT(date, "%d/%m/%Y") AS nice_date, DATE_FORMAT(date, "%kh%i") AS nice_time FROM sessions INNER JOIN departments ON sessions.id_departement=departments.id_department INNER JOIN regions ON departments.id_region=regions.id_region INNER JOIN surf_styles ON sessions.id_surf_style=surf_styles.id_surf_style';
+    'SELECT *, DATE_FORMAT(date, "%d/%m/%Y") AS nice_date, DATE_FORMAT(date, "%kh%i") AS nice_time FROM sessions  LIMIT ?';
+
+  return connection
+    .promise()
+    .query<ISession[]>(sql, [limit])
+    .then(([results]) => results);
+};
+
+// A MODIFIER
+const findSessionByRegionId = (id_region: number) => {
+  return connection
+    .promise()
+    .query<ISession[]>(
+      'SELECT *, DATE_FORMAT(date, "%d/%m/%Y") AS nice_date, DATE_FORMAT(date, "%kh%i") AS nice_time FROM sessions INNER JOIN departments ON sessions.id_departement=departments.id_department INNER JOIN regions ON departments.id_region=regions.id_region INNER JOIN surf_styles ON sessions.id_surf_style=surf_styles.id_surf_style WHERE departments.id_region = ?',
+      [id_region]
+    )
+    .then(([results]) => results);
+};
+
+// A MODIFIER
+const findSessionDate = (id_region: number) => {
+  let sql: string =
+    'SELECT DATE_FORMAT(date, "%d/%m/%Y") AS nice_date FROM sessions INNER JOIN departments ON sessions.id_departement=departments.id_department INNER JOIN regions ON departments.id_region=regions.id_region GROUP BY nice_date';
   let sqlValue: Array<string | number> = [];
-  if (limit) {
-    sql += ' LIMIT ?';
-    sqlValue.push(limit);
+  if (id_region) {
+    sql =
+      'SELECT DATE_FORMAT(date, "%d/%m/%Y") AS nice_date FROM sessions INNER JOIN departments ON sessions.id_departement=departments.id_department INNER JOIN regions ON departments.id_region=regions.id_region WHERE departments.id_region = ? GROUP BY nice_date';
+    sqlValue.push(id_region);
   }
   return connection
     .promise()
@@ -182,4 +206,6 @@ export default {
   checkIfUserHasSubscribe,
   allUserBySession,
   findSessionByRegionId,
+  findSessionDate,
+  findThreeSession,
 };
