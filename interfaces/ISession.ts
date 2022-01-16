@@ -1,6 +1,7 @@
 import { RowDataPacket } from 'mysql2';
 
 export default interface ISession extends RowDataPacket {
+  id_session: number;
   name: string;
   date: string;
   spot_name: string;
