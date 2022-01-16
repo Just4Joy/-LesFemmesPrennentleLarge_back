@@ -31,7 +31,7 @@ userHasSurfSkillsController.delete('/:id_user/:id_surf_skill', (async (req: Requ
     const { id_user, id_surf_skill } = req.params
     try {
         const created = await UserHasSurfSkills.destroy(parseInt(id_user, 10), parseInt(id_surf_skill))
-        res.status(204)
+        res.status(204).json('RESSOURCE DELETED')
     } catch (err) {
         res.status(500).json(err)
     }
