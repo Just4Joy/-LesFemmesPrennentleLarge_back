@@ -4,10 +4,12 @@ import surfStylesController from '../controllers/surfstyles';
 import userTypesController from '../controllers/usertypes';
 import regionsController from '../controllers/regions';
 import sessionsController from '../controllers/sessions';
-import departementsController from '../controllers/departements';
+import departmentsController from './departments';
 import weatherController from './weather';
 import surfskillsController from './surfskill';
 import authController from './auth';
+import userHasSurfSkillsController from './userhassurfskills';
+import sessionHasWeatherController from './sessionhasweathers';
 
 const setupRoutes = (app: express.Application) => {
   app.use('/api/users', usersController);
@@ -15,10 +17,12 @@ const setupRoutes = (app: express.Application) => {
   app.use('/api/usertype', userTypesController);
   app.use('/api/regions', regionsController);
   app.use('/api/sessions', sessionsController);
-  app.use('/api/departements', departementsController);
+  app.use('/api/departments', departmentsController);
   app.use('/api/weather', weatherController);
   app.use('/api/surfskill', surfskillsController);
   app.use('/api/login', authController);
+  app.use('/api/userhassurfskills', userHasSurfSkillsController)
+  app.use('/api/sessionhasweathers', sessionHasWeatherController)
 };
 
 export default setupRoutes;

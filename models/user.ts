@@ -30,17 +30,19 @@ const validateUser = (req: Request, res: Response, next: NextFunction) => {
   const errors = Joi.object({
     firstname: Joi.string().max(100).presence(required),
     lastname: Joi.string().max(100).presence(required),
-    city: Joi.string().max(100).presence(required),
+    city: Joi.string().max(100).optional(),
     email: Joi.string().email().max(100).presence(required),
     password: Joi.string().min(8).max(15).presence(required),
-    zip_code: Joi.string().max(45).presence(required),
-    profile_pic: Joi.string().max(250).presence(required),
-    id_surf_skill: Joi.number().presence(required),
-    favorite_spot: Joi.string().max(45).presence(required),
+    zip_code: Joi.string().max(45).optional(),
+    profile_pic: Joi.string().max(250).optional(),
+    id_surf_skill: Joi.number().optional(),
+    favorite_spot: Joi.string().optional(),
     created_date: Joi.date().optional(), /// domifiier pour required
-    id_departement: Joi.number().presence(required),
-    id_surf_style: Joi.number().presence(required),
+    id_departement: Joi.number().optional(),
+    id_surf_style: Joi.number().optional(),
     wahine: Joi.boolean().truthy(1).falsy(0).presence(required),
+    desc: Joi.string().max(255).optional(),
+    phone: Joi.string().max(10).presence(required),
   }).validate(req.body, { abortEarly: false }).error;
   if (errors) {
     next(new ErrorHandler(422, errors.message));
@@ -62,8 +64,7 @@ const validateLogin = (req: Request, res: Response, next: NextFunction) => {
 };
 
 const findMany = () => {
-  const sql =
-    'SELECT u.city, u.created_date, u.email, u.favorite_spot, u.firstname, d.department_name as department, sk.name as surf_skill, st.name_user as surf_style, u.id_user, u.lastname, u.password, u.profile_pic, u.wahine, u.zip_code FROM users u INNER JOIN departments d ON u.id_departement = d.id_department INNER JOIN surf_skills sk ON u.id_surf_skill = sk.id_surf_skill INNER JOIN surf_styles st ON u.id_surf_style = st.id_surf_style';
+  const sql = 'SELECT * from users';
   return connection
     .promise()
     .query<IUser[]>(sql, [])
@@ -80,10 +81,7 @@ const findByEmail = (email: string): Promise<IUser> => {
 const findOneById = (id: number): Promise<IUser> => {
   return connection
     .promise()
-    .query<IUser[]>(
-      'SELECT u.city, u.created_date, u.email, u.favorite_spot, u.firstname, d.department_name as department, sk.name as surf_skill, st.name_user as surf_style, u.id_user, u.lastname, u.password, u.profile_pic, u.wahine, u.zip_code FROM users u INNER JOIN departments d ON u.id_departement = d.id_department INNER JOIN surf_skills sk ON u.id_surf_skill = sk.id_surf_skill INNER JOIN surf_styles st ON u.id_surf_style = st.id_surf_style WHERE id_user = ?',
-      [id]
-    )
+    .query<IUser[]>('SELECT * FROM users WHERE id_user = ?', [id])
     .then(([results]) => results[0]);
 };
 
@@ -110,38 +108,26 @@ const create = async (payload: IUser) => {
   const {
     firstname,
     lastname,
-    city,
     email,
     password,
-    zip_code,
-    profile_pic,
-    id_surf_skill,
-    favorite_spot,
     created_date,
-    id_departement,
-    id_surf_style,
     wahine,
+    phone,
   } = payload;
   const hashedPassword = await hashPassword(password);
 
   return connection
     .promise()
     .query<ResultSetHeader>(
-      'INSERT INTO users (firstname, lastname, city, email, password, zip_code, profile_pic, id_surf_skill, favorite_spot, created_date, id_departement, id_surf_style, wahine) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)',
+      'INSERT INTO users (firstname, lastname, email, password, created_date, wahine, phone) VALUES (?,?,?,?,?,?,?)',
       [
         firstname,
         lastname,
-        city,
         email,
         hashedPassword,
-        zip_code,
-        profile_pic,
-        id_surf_skill,
-        favorite_spot,
         created_date,
-        id_departement,
-        id_surf_style,
         wahine,
+        phone,
       ]
     );
 };
