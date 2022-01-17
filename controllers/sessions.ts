@@ -68,6 +68,7 @@ sessionsController.post(
     (async () => {
       try {
         const session = req.body as ISession;
+        console.log(session)  
         const insertId: number = await Session.create(session);
         console.log(insertId);
         return res.status(200).json({ id_session: insertId, ...req.body });

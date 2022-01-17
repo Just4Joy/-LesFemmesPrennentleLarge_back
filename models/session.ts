@@ -53,9 +53,9 @@ const create = (session: ISession): Promise<number> => {
     name,
     date,
     spot_name,
-    adress,
+    address,
     nb_hiki_max,
-    id_departement,
+    id_department,
     id_surf_style,
     carpool,
     id_user,
@@ -63,14 +63,14 @@ const create = (session: ISession): Promise<number> => {
   return connection
     .promise()
     .query<ResultSetHeader>(
-      'INSERT INTO sessions (name, date, spot_name, adress, nb_hiki_max, id_departement, id_surf_style, carpool, id_user) VALUES (?,?,?,?,?,?,?,?,?)',
+      'INSERT INTO sessions (name, date, spot_name, address, nb_hiki_max, id_department, id_surf_style, carpool, id_user) VALUES (?,?,?,?,?,?,?,?,?)',
       [
         name,
         date,
         spot_name,
-        adress,
+        address,
         nb_hiki_max,
-        id_departement,
+        id_department,
         id_surf_style,
         carpool,
         id_user,
@@ -128,11 +128,11 @@ const validateSession = (req: Request, res: Response, next: NextFunction) => {
   }
   const errors = Joi.object({
     name: Joi.string().min(3).max(100).presence(required),
-    date: Joi.date().presence(required),
+    date: Joi.string().presence(required),
     spot_name: Joi.string().min(2).max(100).presence(required),
-    adress: Joi.string().min(2).max(255).presence(required),
+    address: Joi.string().min(2).max(255).presence(required),
     nb_hiki_max: Joi.number().integer().presence(required),
-    id_departement: Joi.number().integer().presence(required),
+    id_department: Joi.number().integer().presence(required),
     id_surf_style: Joi.number().integer().presence(required),
     carpool: Joi.number().integer().presence(required),
     id_user: Joi.number().integer().presence(required),
