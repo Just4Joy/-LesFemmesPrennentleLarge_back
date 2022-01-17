@@ -1,9 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import express from 'express';
 import Session from '../models/session';
+import User from '../models/user'
 import ISession from '../interfaces/ISession';
 import { ErrorHandler } from '../helpers/errors';
 import IUser from '../interfaces/IUser';
+import { ResultSetHeader } from 'mysql2';
 
 const sessionsController = express.Router();
 
@@ -151,14 +153,22 @@ sessionsController.delete(
 );
 
 sessionsController.get(
-  '/:id/subscribers',
+  '/:id_session/users',
   (req: Request, res: Response, next: NextFunction) => {
     (async () => {
-      const { id } = req.params as ISession;
+      
 
       try {
-        const subscribers = await Session.allUserBySession(id);
-        return res.status(200).json(subscribers);
+        
+        const { id_session } = req.params as ISession;
+        const session: ISession = await Session.findOne(id_session)
+        if (session) {
+          const users: any = await User.allUserBySession(id_session)
+          return res.status(200).json(users);
+        } else {
+          return res.status(404).send('RESSOURCE NOT FOUND')
+        }
+        
       } catch (err) {
         next(err);
       }

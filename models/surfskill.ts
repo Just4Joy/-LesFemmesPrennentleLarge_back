@@ -8,7 +8,17 @@ const findSurfSkills = () => {
   return db.query<ISurfSkills[]>(sql).then(([results]) => results);
 };
 
-const findSurfSkillsById = (id: number) => {
+const findSurfSkillsByUser = (id: number) => {
+  return db
+    .query<ISurfSkills[]>(`SELECT s.* FROM surf_skills as s 
+    INNER JOIN users_has_surf_skills as us ON s.id_surf_skill = us.id_surf_skill 
+    WHERE us.id_user = ?`, [
+      id,
+    ])
+    .then(([results]) => results);
+};
+
+const findSurfSkillsById  = (id: number) => {
   return db
     .query<ISurfSkills[]>(`SELECT * FROM surf_skills WHERE id_surf_skill = ?`, [
       id,
@@ -19,6 +29,7 @@ const findSurfSkillsById = (id: number) => {
 const SurfSkills = {
   findSurfSkills,
   findSurfSkillsById,
+  findSurfSkillsByUser,
 };
 
 export default SurfSkills;

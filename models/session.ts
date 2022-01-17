@@ -173,15 +173,7 @@ const checkIfUserHasSubscribe = (id_user: number, id_session: number) => {
     .then(([result]) => result);
 };
 
-const allUserBySession = (id_session: number) => {
-  return connection
-    .promise()
-    .query<ResultSetHeader>(
-      'SELECT users_has_sessions.id_session, users_has_sessions.id_user, users.firstname, users.lastname FROM users_has_sessions INNER JOIN users ON users_has_sessions.id_user = users.id_user WHERE id_session = ?',
-      [id_session]
-    )
-    .then(([result]) => result);
-};
+
 
 export default {
   findSession,
@@ -193,6 +185,6 @@ export default {
   subscribe,
   unsubscribe,
   checkIfUserHasSubscribe,
-  allUserBySession,
+ 
   // findSessionDate,
 };

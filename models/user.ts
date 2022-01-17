@@ -132,6 +132,16 @@ const create = async (payload: IUser) => {
     );
 };
 
+const allUserBySession = (id_session: number) => {
+  return connection
+    .promise()
+    .query<ResultSetHeader>(
+      'SELECT u.* FROM users as u INNER JOIN users_has_sessions ON users_has_sessions.id_user = u.id_user WHERE users_has_sessions.id_session = ?',
+      [id_session]
+    )
+    .then(([result]) => result);
+};
+
 const User = {
   findMany,
   create,
@@ -142,6 +152,7 @@ const User = {
   validateUser,
   validateLogin,
   verifyPassword,
+  allUserBySession,
 };
 
 export default User;
