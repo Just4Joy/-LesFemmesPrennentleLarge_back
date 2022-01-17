@@ -3,7 +3,6 @@ import express from 'express';
 import Session from '../models/session';
 import ISession from '../interfaces/ISession';
 import { ErrorHandler } from '../helpers/errors';
-import { number } from 'joi';
 import IUser from '../interfaces/IUser';
 
 const sessionsController = express.Router();
@@ -12,9 +11,16 @@ sessionsController.get(
   '/',
   (req: Request, res: Response, next: NextFunction) => {
     (async () => {
+      const region = req.query.region as string;
       const limit = req.query.limit as string;
+      const date = req.query.date as string;
       try {
-        const sessions: ISession[] = await Session.findSession(parseInt(limit));
+        const sessions: ISession[] = await Session.findSession(
+          parseInt(region),
+          parseInt(limit),
+          date
+        );
+        console.log(sessions);
         return res.status(200).json(sessions);
       } catch (err) {
         next(err);
@@ -22,6 +28,23 @@ sessionsController.get(
     })();
   }
 );
+// A confirmer
+// sessionsController.get(
+//   '/dates',
+//   (req: Request, res: Response, next: NextFunction) => {
+//     (async () => {
+//       const id_region = req.query.region as string;
+//       try {
+//         const sessions: ISession[] | void = await Session.findSessionDate(
+//           parseInt(id_region)
+//         );
+//         return res.status(200).json(sessions);
+//       } catch (err) {
+//         next(err);
+//       }
+//     })();
+//   }
+// );
 
 sessionsController.get(
   '/:id',
