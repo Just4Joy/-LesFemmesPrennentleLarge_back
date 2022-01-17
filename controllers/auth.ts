@@ -4,7 +4,10 @@ import IUser from '../interfaces/IUser';
 import { ErrorHandler } from '../helpers/errors';
 import { calculateToken, getCurrentSession } from '../helpers/auth';
 import express from 'express';
-import { cp } from 'fs';
+import Imagekit from 'imagekit'
+import { v4 as uuidv4 } from 'uuid'
+import * as dotenv from 'dotenv';
+
 
 const authController = express.Router();
 
@@ -41,6 +44,25 @@ authController.post('/', (async (
   } catch (err) {
     next(err);
   }
+}) as RequestHandler);
+
+authController.get('/', (async (
+  req: Request,
+  res: Response,
+  
+) => {
+
+  let imagekit = new Imagekit({
+    publicKey : String(process.env.publicAPIKEY),
+    privateKey : String(process.env.privateAPIKey),
+    urlEndpoint : "https://ik.imagekit.io/LFPLL/"
+});
+
+let authenticationParameters = imagekit.getAuthenticationParameters();
+res.status(200).json(authenticationParameters)
+  
+
+   
 }) as RequestHandler);
 
 export default authController;
