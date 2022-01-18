@@ -90,6 +90,32 @@ userController.get('/:id_user/surfskills', (async (req: Request, res: Response) 
   }
 }) as RequestHandler)
 
+
+userController.post('/:id_user/surfskills/', (async (req: Request, res: Response) => {
+  const { id_user  } = req.params
+  const {id_surf_skill} = req.body
+  try {
+      const created = await SurfSkills.create(parseInt(id_user, 10), parseInt(id_surf_skill))
+      res.status(201).json(created)
+  } catch (err) {
+      res.status(500).json(err)
+  }
+
+}) as RequestHandler)
+
+userController.delete('/:id_user/surfskills/:id_surf_skill', (async (req: Request, res: Response) => {
+  const { id_user, id_surf_skill } = req.params
+  try {
+      const created = await SurfSkills.destroy(parseInt(id_user, 10), parseInt(id_surf_skill))
+      res.status(204).json('RESSOURCE DELETED')
+  } catch (err) {
+      res.status(500).json(err)
+  }
+
+}) as RequestHandler)
+
+
+
 userController.delete('/:idUser', Auth.getCurrentSession, (async (
   req: Request,
   res: Response

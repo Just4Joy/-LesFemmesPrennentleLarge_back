@@ -144,24 +144,7 @@ const validateSession = (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const subscribe = (id_user: number, id_session: number) => {
-  return connection
-    .promise()
-    .query<ResultSetHeader>(
-      'INSERT INTO users_has_sessions (id_user, id_session) VALUES (?,?)',
-      [id_user, id_session]
-    )
-    .then(([result]) => result);
-};
 
-const unsubscribe = (id_user: number, id_session: number) => {
-  return connection
-    .promise()
-    .query<ResultSetHeader>(
-      'DELETE FROM users_has_sessions WHERE id_user = ? AND id_session = ?',
-      [id_user, id_session]
-    );
-};
 
 const checkIfUserHasSubscribe = (id_user: number, id_session: number) => {
   return connection
@@ -182,8 +165,6 @@ export default {
   findOne,
   update,
   sessionExists,
-  subscribe,
-  unsubscribe,
   checkIfUserHasSubscribe,
  
   // findSessionDate,

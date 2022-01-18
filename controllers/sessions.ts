@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, RequestHandler } from 'express';
 import express from 'express';
 import Session from '../models/session';
 import User from '../models/user'
@@ -6,6 +6,7 @@ import ISession from '../interfaces/ISession';
 import { ErrorHandler } from '../helpers/errors';
 import IUser from '../interfaces/IUser';
 import { ResultSetHeader } from 'mysql2';
+import Weather from '../models/weather'
 
 const sessionsController = express.Router();
 
@@ -101,22 +102,22 @@ sessionsController.put(
 );
 
 sessionsController.post(
-  '/subscribe',
+  '/:id_session/users/',
   (req: Request, res: Response, next: NextFunction) => {
     (async () => {
       try {
-        const { id_session } = req.body as ISession;
+        const { id_session } = req.params as ISession;
         const { id_user } = req.body as IUser;
         const result: any = await Session.checkIfUserHasSubscribe(
           id_user,
           id_session
         );
         if (!result[0]) {
-          const subscription: any = await Session.subscribe(
+          const subscription: any = await User.subscribe(
             id_user,
             id_session
           );
-          console.log(subscription, 'subscription');
+          
           return res.status(201).json('SUBSCRIPTION ADDED');
         } else return res.status(422).json('USER ALREADY SUBSCRIBE');
       } catch (err) {
@@ -127,18 +128,18 @@ sessionsController.post(
 );
 
 sessionsController.delete(
-  '/unsubscribe',
+  '/:id_session/users/:id_user',
   (req: Request, res: Response, next: NextFunction) => {
     (async () => {
       try {
-        const { id_session } = req.body as ISession;
-        const { id_user } = req.body as IUser;
+        const { id_session } = req.params as ISession;
+        const { id_user } = req.params as IUser;
         const result: any = await Session.checkIfUserHasSubscribe(
           id_user,
           id_session
         );
         if (result[0]) {
-          const unsubscription: any = await Session.unsubscribe(
+          const unsubscription: any = await User.unsubscribe(
             id_user,
             id_session
           );
@@ -175,5 +176,38 @@ sessionsController.get(
     })();
   }
 );
+
+
+sessionsController.get('/:id_session/weather', (async (req: Request, res: Response) => {
+  const { id_session } = req.params
+  const sessionWeather = await Weather.getWeatherBySession(parseInt(id_session, 10))
+  console.log(sessionWeather)
+  res.status(200).json(sessionWeather)
+}) as RequestHandler)
+
+
+sessionsController.post('/:id_session/weather', (async (req: Request, res: Response) => {
+  const { id_session } = req.params
+  const { id_weather } = req.body
+  try {
+      const created = await Weather.create(parseInt(id_session, 10), parseInt(id_weather,10))
+      res.status(201).json(created)
+  } catch (err) {
+      res.status(500).json(err)
+  }
+
+}) as RequestHandler)
+
+
+sessionsController.delete('/:id_session/weather/:id_weather', (async (req: Request, res: Response) => {
+  const { id_session, id_weather } = req.params
+  try {
+      const created = await Weather.destroy(parseInt(id_session, 10), parseInt(id_weather,10))
+      res.status(204).json('RESSOURCE DELETED')
+  } catch (err) {
+      res.status(500).json(err)
+  }
+
+}) as RequestHandler)
 
 export default sessionsController;
