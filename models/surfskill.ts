@@ -26,10 +26,39 @@ const findSurfSkillsById  = (id: number) => {
     .then(([results]) => results[0]);
 };
 
+
+const create = (
+  id_user: number,
+  id_surf_skill: number,
+) => {
+  return connection
+    .promise()
+    .query<ISurfSkills[]>(
+      'INSERT INTO users_has_surf_skills (id_user, id_surf_skill) VALUES (?,?)',
+      [id_user, id_surf_skill]
+    )
+    .then(([result]) => result);
+};
+
+const destroy = (
+  id_user: number,
+  id_surf_skill: number
+) => {
+  return connection
+    .promise()
+    .query<ISurfSkills[]>(
+      'DELETE FROM users_has_surf_skills WHERE id_user = ? AND id_surf_skill = ?',
+      [id_user, id_surf_skill]
+    );
+};
+
 const SurfSkills = {
   findSurfSkills,
   findSurfSkillsById,
   findSurfSkillsByUser,
+  create,
+  destroy,
+  
 };
 
 export default SurfSkills;

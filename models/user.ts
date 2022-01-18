@@ -127,6 +127,25 @@ const allUserBySession = (id_session: number) => {
     .then(([result]) => result);
 };
 
+const subscribe = (id_user: number, id_session: number) => {
+  return connection
+    .promise()
+    .query<ResultSetHeader>(
+      'INSERT INTO users_has_sessions (id_user, id_session) VALUES (?,?)',
+      [id_user, id_session]
+    )
+    .then(([result]) => result);
+};
+
+const unsubscribe = (id_user: number, id_session: number) => {
+  return connection
+    .promise()
+    .query<ResultSetHeader>(
+      'DELETE FROM users_has_sessions WHERE id_user = ? AND id_session = ?',
+      [id_user, id_session]
+    );
+};
+
 const User = {
   findMany,
   create,
@@ -138,6 +157,10 @@ const User = {
   validateLogin,
   verifyPassword,
   allUserBySession,
+  subscribe,
+  unsubscribe,
+  
+  
 };
 
 export default User;
