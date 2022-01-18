@@ -28,23 +28,6 @@ sessionsController.get(
     })();
   }
 );
-// A confirmer
-// sessionsController.get(
-//   '/dates',
-//   (req: Request, res: Response, next: NextFunction) => {
-//     (async () => {
-//       const id_region = req.query.region as string;
-//       try {
-//         const sessions: ISession[] | void = await Session.findSessionDate(
-//           parseInt(id_region)
-//         );
-//         return res.status(200).json(sessions);
-//       } catch (err) {
-//         next(err);
-//       }
-//     })();
-//   }
-// );
 
 sessionsController.get(
   '/:id',
@@ -69,7 +52,7 @@ sessionsController.post(
       try {
         const session = req.body as ISession;
         const insertId: number = await Session.create(session);
-        console.log(insertId);
+
         return res.status(200).json({ id_session: insertId, ...req.body });
       } catch (err) {
         next(err);

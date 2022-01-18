@@ -21,8 +21,8 @@ const setupRoutes = (app: express.Application) => {
   app.use('/api/weather', weatherController);
   app.use('/api/surfskill', surfskillsController);
   app.use('/api/login', authController);
-  app.use('/api/userhassurfskills', userHasSurfSkillsController)
-  app.use('/api/sessionhasweathers', sessionHasWeatherController)
+  app.use('/api/userhassurfskills', userHasSurfSkillsController);
+  app.use('/api/sessionhasweathers', sessionHasWeatherController);
 };
 
 export default setupRoutes;
