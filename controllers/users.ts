@@ -41,7 +41,7 @@ userController.post('/', User.validateUser, (async (
   req: Request,
   res: Response
 ) => {
-  console.log(req)
+  console.log(req);
   const { email } = req.body as IUser;
   const existingEmail: IUser = await User.findByEmail(email);
   if (existingEmail) {
