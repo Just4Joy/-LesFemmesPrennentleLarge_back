@@ -7,7 +7,7 @@ import { Request, Response, NextFunction } from 'express';
 
 const findSession = (region: number, limit: number, date: string) => {
   let sql =
-    'SELECT sessions.name, DATE_FORMAT(date, "%Y/%m/%d %H:%i:%s") AS date, spot_name, address, nb_hiki_max, sessions.id_department, id_surf_style, carpool, id_user, DATE_FORMAT(date, "%d/%m/%Y") AS nice_date, DATE_FORMAT(date, "%kh%i") AS nice_time FROM sessions';
+    'SELECT id_session, sessions.name, DATE_FORMAT(date, "%Y/%m/%d %H:%i:%s") AS date, spot_name, address, nb_hiki_max, sessions.id_department, id_surf_style, carpool, id_user, DATE_FORMAT(date, "%d/%m/%Y") AS nice_date, DATE_FORMAT(date, "%kh%i") AS nice_time FROM sessions';
   const sqlValue: Array<string | number> = [];
   if (region) {
     sql +=
@@ -125,8 +125,6 @@ const validateSession = (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-
-
 const checkIfUserHasSubscribe = (id_user: number, id_session: number) => {
   return connection
     .promise()
@@ -136,8 +134,6 @@ const checkIfUserHasSubscribe = (id_user: number, id_session: number) => {
     )
     .then(([result]) => result);
 };
-
-
 
 export default {
   findSession,
