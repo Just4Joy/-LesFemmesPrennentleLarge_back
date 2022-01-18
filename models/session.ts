@@ -22,8 +22,7 @@ const findSession = (region: number, limit: number, date: string) => {
     sql += ` LIMIT ?`;
     sqlValue.push(limit);
   }
-  console.log(sql);
-  console.log(sqlValue);
+
   return connection
     .promise()
     .query<ISession[]>(sql, sqlValue)

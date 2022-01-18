@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction, RequestHandler } from 'express';
 import express from 'express';
 import Session from '../models/session';
-import User from '../models/user'
+import User from '../models/user';
 import ISession from '../interfaces/ISession';
 import { ErrorHandler } from '../helpers/errors';
 import IUser from '../interfaces/IUser';
 import { ResultSetHeader } from 'mysql2';
-import Weather from '../models/weather'
+import Weather from '../models/weather';
 
 const sessionsController = express.Router();
 
@@ -23,7 +23,6 @@ sessionsController.get(
           parseInt(limit),
           date
         );
-        console.log(sessions);
         return res.status(200).json(sessions);
       } catch (err) {
         next(err);
@@ -54,7 +53,7 @@ sessionsController.post(
     (async () => {
       try {
         const session = req.body as ISession;
-        console.log(session)  
+        console.log(session);
         const insertId: number = await Session.create(session);
 
         return res.status(200).json({ id_session: insertId, ...req.body });
@@ -71,7 +70,6 @@ sessionsController.put(
   Session.validateSession,
   (req: Request, res: Response, next: NextFunction) => {
     const session = req.body as ISession;
-    console.log(session);
     Session.update(parseInt(req.params.idSession, 10), session)
       .then((sessionUpdated) => {
         if (sessionUpdated) {
@@ -96,11 +94,8 @@ sessionsController.post(
           id_session
         );
         if (!result[0]) {
-          const subscription: any = await User.subscribe(
-            id_user,
-            id_session
-          );
-          
+          const subscription: any = await User.subscribe(id_user, id_session);
+
           return res.status(201).json('SUBSCRIPTION ADDED');
         } else return res.status(422).json('USER ALREADY SUBSCRIBE');
       } catch (err) {
@@ -140,19 +135,15 @@ sessionsController.get(
   '/:id_session/users',
   (req: Request, res: Response, next: NextFunction) => {
     (async () => {
-      
-
       try {
-        
         const { id_session } = req.params as ISession;
-        const session: ISession = await Session.findOne(id_session)
+        const session: ISession = await Session.findOne(id_session);
         if (session) {
-          const users: any = await User.allUserBySession(id_session)
+          const users: any = await User.allUserBySession(id_session);
           return res.status(200).json(users);
         } else {
-          return res.status(404).send('RESSOURCE NOT FOUND')
+          return res.status(404).send('RESSOURCE NOT FOUND');
         }
-        
       } catch (err) {
         next(err);
       }
@@ -160,37 +151,49 @@ sessionsController.get(
   }
 );
 
+sessionsController.get('/:id_session/weather', (async (
+  req: Request,
+  res: Response
+) => {
+  const { id_session } = req.params;
+  const sessionWeather = await Weather.getWeatherBySession(
+    parseInt(id_session, 10)
+  );
+  console.log(sessionWeather);
+  res.status(200).json(sessionWeather);
+}) as RequestHandler);
 
-sessionsController.get('/:id_session/weather', (async (req: Request, res: Response) => {
-  const { id_session } = req.params
-  const sessionWeather = await Weather.getWeatherBySession(parseInt(id_session, 10))
-  console.log(sessionWeather)
-  res.status(200).json(sessionWeather)
-}) as RequestHandler)
-
-
-sessionsController.post('/:id_session/weather', (async (req: Request, res: Response) => {
-  const { id_session } = req.params
-  const { id_weather } = req.body
+sessionsController.post('/:id_session/weather', (async (
+  req: Request,
+  res: Response
+) => {
+  const { id_session } = req.params;
+  const { id_weather } = req.body;
   try {
-      const created = await Weather.create(parseInt(id_session, 10), parseInt(id_weather,10))
-      res.status(201).json(created)
+    const created = await Weather.create(
+      parseInt(id_session, 10),
+      parseInt(id_weather, 10)
+    );
+    res.status(201).json(created);
   } catch (err) {
-      res.status(500).json(err)
+    res.status(500).json(err);
   }
+}) as RequestHandler);
 
-}) as RequestHandler)
-
-
-sessionsController.delete('/:id_session/weather/:id_weather', (async (req: Request, res: Response) => {
-  const { id_session, id_weather } = req.params
+sessionsController.delete('/:id_session/weather/:id_weather', (async (
+  req: Request,
+  res: Response
+) => {
+  const { id_session, id_weather } = req.params;
   try {
-      const created = await Weather.destroy(parseInt(id_session, 10), parseInt(id_weather,10))
-      res.status(204).json('RESSOURCE DELETED')
+    const created = await Weather.destroy(
+      parseInt(id_session, 10),
+      parseInt(id_weather, 10)
+    );
+    res.status(204).json('RESSOURCE DELETED');
   } catch (err) {
-      res.status(500).json(err)
+    res.status(500).json(err);
   }
-
-}) as RequestHandler)
+}) as RequestHandler);
 
 export default sessionsController;
