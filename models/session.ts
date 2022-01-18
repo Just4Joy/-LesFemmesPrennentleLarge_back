@@ -109,7 +109,7 @@ const validateSession = (req: Request, res: Response, next: NextFunction) => {
   }
   const errors = Joi.object({
     name: Joi.string().min(3).max(100).presence(required),
-    date: Joi.date().presence(required),
+    date: Joi.string().presence(required),
     spot_name: Joi.string().min(2).max(100).presence(required),
     address: Joi.string().min(2).max(255).presence(required),
     nb_hiki_max: Joi.number().integer().presence(required),
@@ -154,15 +154,7 @@ const checkIfUserHasSubscribe = (id_user: number, id_session: number) => {
     .then(([result]) => result);
 };
 
-const allUserBySession = (id_session: number) => {
-  return connection
-    .promise()
-    .query<ResultSetHeader>(
-      'SELECT users_has_sessions.id_session, users_has_sessions.id_user, users.firstname, users.lastname FROM users_has_sessions INNER JOIN users ON users_has_sessions.id_user = users.id_user WHERE id_session = ?',
-      [id_session]
-    )
-    .then(([result]) => result);
-};
+
 
 export default {
   findSession,
@@ -174,5 +166,4 @@ export default {
   subscribe,
   unsubscribe,
   checkIfUserHasSubscribe,
-  allUserBySession,
 };

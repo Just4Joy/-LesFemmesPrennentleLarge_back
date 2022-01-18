@@ -1,9 +1,11 @@
 import express from 'express';
 import { Request, Response, NextFunction, RequestHandler } from 'express';
 import User from '../models/user';
+import SurfSkills from '../models/surfskill'
 import Schema from '../_utils/validator';
 import IUser from '../interfaces/IUser';
 import * as Auth from '../helpers/auth';
+import ISurfSkill from '../interfaces/ISurfskills';
 
 const userController = express.Router();
 
@@ -58,7 +60,7 @@ userController.put(
     try {
       const { idUser } = req.params;
       const foundUser: IUser = await User.findOneById(parseInt(idUser, 10));
-      console.log(foundUser);
+
       if (foundUser) {
         const UpdatedUser = await User.update(req.body, parseInt(idUser, 10));
         console.log(UpdatedUser);
@@ -70,6 +72,23 @@ userController.put(
     }
   }) as RequestHandler
 );
+
+userController.get('/:id_user/surfskills', (async (req: Request, res: Response) => {
+  try {
+    const { id_user } = req.params;
+
+    const foundUser: IUser = await User.findOneById(parseInt(id_user, 10));
+
+    if (foundUser) {
+      const surfskills: ISurfSkill[] = await SurfSkills.findSurfSkillsByUser(parseInt(id_user, 10));
+      if (surfskills) return res.status(200).json(surfskills)
+      else return res.status(404).send('RESSOURCE NOT FOUND')
+    }
+
+  } catch (err) {
+    console.log(err);
+  }
+}) as RequestHandler)
 
 userController.delete('/:idUser', Auth.getCurrentSession, (async (
   req: Request,
