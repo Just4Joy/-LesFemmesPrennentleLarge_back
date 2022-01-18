@@ -7,17 +7,15 @@ import { Request, Response, NextFunction } from 'express';
 
 const findSession = (region: number, limit: number, date: string) => {
   let sql =
-    'SELECT sessions.name, spot_name, adress, nb_hiki_max, id_departement, id_surf_style, carpool, id_user, DATE_FORMAT(date, "%d/%m/%Y") AS nice_date, DATE_FORMAT(date, "%kh%i") AS nice_time FROM sessions';
+    'SELECT sessions.name, DATE_FORMAT(date, "%Y/%m/%d %H:%i:%s") AS date, spot_name, address, nb_hiki_max, sessions.id_department, id_surf_style, carpool, id_user, DATE_FORMAT(date, "%d/%m/%Y") AS nice_date, DATE_FORMAT(date, "%kh%i") AS nice_time FROM sessions';
   const sqlValue: Array<string | number> = [];
   if (region) {
     sql +=
-      ' INNER JOIN departments ON sessions.id_departement=departments.id_department INNER JOIN regions ON departments.id_region=regions.id_region WHERE departments.id_region = ?';
+      ' INNER JOIN departments ON sessions.id_department=departments.id_department INNER JOIN regions ON departments.id_region=regions.id_region WHERE departments.id_region = ?';
     sqlValue.push(region);
   }
   if (date) {
-    region
-      ? (sql += ' AND nice_date= ?')
-      : (sql += ' WHERE sessions.nice_date = ?');
+    region ? (sql += ' AND date = ?') : (sql += ' WHERE date = ?');
     sqlValue.push(date);
   }
   if (limit) {
@@ -31,22 +29,6 @@ const findSession = (region: number, limit: number, date: string) => {
     .query<ISession[]>(sql, sqlValue)
     .then(([results]) => results);
 };
-
-// A MODIFIER
-// const findSessionDate = (id_region: number) => {
-//   let sql =
-//     'SELECT DATE_FORMAT(date, "%d/%m/%Y") AS nice_date FROM sessions INNER JOIN departments ON sessions.id_departement=departments.id_department INNER JOIN regions ON departments.id_region=regions.id_region GROUP BY nice_date';
-//   const sqlValue: Array<string | number> = [];
-//   if (id_region) {
-//     sql =
-//       'SELECT DATE_FORMAT(date, "%d/%m/%Y") AS nice_date FROM sessions INNER JOIN departments ON sessions.id_departement=departments.id_department INNER JOIN regions ON departments.id_region=regions.id_region WHERE departments.id_region = ? GROUP BY nice_date';
-//     sqlValue.push(id_region);
-//   }
-//   return connection
-//     .promise()
-//     .query<ISession[]>(sql, sqlValue)
-//     .then(([results]) => results);
-// };
 
 const create = (session: ISession): Promise<number> => {
   const {
@@ -93,7 +75,6 @@ const update = (
   id_session: number,
   newAttributes: ISession
 ): Promise<boolean> => {
-  console.log(newAttributes);
   return connection
     .promise()
     .query<ResultSetHeader>('UPDATE sessions SET ? WHERE id_session = ?', [
@@ -185,6 +166,4 @@ export default {
   subscribe,
   unsubscribe,
   checkIfUserHasSubscribe,
- 
-  // findSessionDate,
 };
