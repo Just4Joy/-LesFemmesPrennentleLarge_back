@@ -38,7 +38,7 @@ const validateUser = (req: Request, res: Response, next: NextFunction) => {
     id_surf_skill: Joi.number().optional(),
     favorite_spot: Joi.string().optional(),
     created_date: Joi.date().optional(), /// domifiier pour required
-    id_departement: Joi.number().optional(),
+    id_department: Joi.number().optional(),
     id_surf_style: Joi.number().optional(),
     wahine: Joi.boolean().truthy(1).falsy(0).presence(required),
     desc: Joi.string().max(255).optional(),
