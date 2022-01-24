@@ -134,6 +134,12 @@ const checkIfUserHasSubscribe = (id_user: number, id_session: number) => {
     .then(([result]) => result);
 };
 
+const destroy = (id: number) => {
+  return connection
+    .promise()
+    .query<ISession[]>('DELETE FROM sessions WHERE id_session = ?', [id]);
+};
+
 export default {
   findSession,
   create,
@@ -142,4 +148,5 @@ export default {
   update,
   sessionExists,
   checkIfUserHasSubscribe,
+  destroy,
 };
