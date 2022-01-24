@@ -10,15 +10,16 @@ const findSurfSkills = () => {
 
 const findSurfSkillsByUser = (id: number) => {
   return db
-    .query<ISurfSkills[]>(`SELECT s.* FROM surf_skills as s 
+    .query<ISurfSkills[]>(
+      `SELECT s.* FROM surf_skills as s 
     INNER JOIN users_has_surf_skills as us ON s.id_surf_skill = us.id_surf_skill 
-    WHERE us.id_user = ?`, [
-      id,
-    ])
+    WHERE us.id_user = ?`,
+      [id]
+    )
     .then(([results]) => results);
 };
 
-const findSurfSkillsById  = (id: number) => {
+const findSurfSkillsById = (id: number) => {
   return db
     .query<ISurfSkills[]>(`SELECT * FROM surf_skills WHERE id_surf_skill = ?`, [
       id,
@@ -26,11 +27,7 @@ const findSurfSkillsById  = (id: number) => {
     .then(([results]) => results[0]);
 };
 
-
-const create = (
-  id_user: number,
-  id_surf_skill: number,
-) => {
+const create = (id_user: number, id_surf_skill: number) => {
   return connection
     .promise()
     .query<ISurfSkills[]>(
@@ -40,10 +37,7 @@ const create = (
     .then(([result]) => result);
 };
 
-const destroy = (
-  id_user: number,
-  id_surf_skill: number
-) => {
+const destroy = (id_user: number, id_surf_skill: number) => {
   return connection
     .promise()
     .query<ISurfSkills[]>(
@@ -58,7 +52,6 @@ const SurfSkills = {
   findSurfSkillsByUser,
   create,
   destroy,
-  
 };
 
 export default SurfSkills;
