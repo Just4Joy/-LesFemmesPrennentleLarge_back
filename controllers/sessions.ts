@@ -21,10 +21,10 @@ sessionsController.get(
 
       try {
         const sessions: ISession[] = await Session.findSession(
-          parseInt(region),
-          parseInt(limit),
+          Number(region),
+          Number(limit),
           date,
-          parseInt(pages)
+          Number(pages)
         );
         return res.status(200).json(sessions);
       } catch (err) {
