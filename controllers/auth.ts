@@ -46,13 +46,13 @@ authController.post('/', (async (
 }) as RequestHandler);
 
 authController.get('/', (async (req: Request, res: Response) => {
-  let imagekit = new Imagekit({
+  const imagekit = new Imagekit({
     publicKey: String(process.env.publicAPIKEY),
     privateKey: String(process.env.privateAPIKey),
     urlEndpoint: 'https://ik.imagekit.io/LFPLL/',
   });
 
-  let authenticationParameters = imagekit.getAuthenticationParameters();
+  const authenticationParameters = imagekit.getAuthenticationParameters();
   res.status(200).json(authenticationParameters);
 }) as RequestHandler);
 

@@ -5,23 +5,61 @@ import { ResultSetHeader } from 'mysql2';
 import { ErrorHandler } from '../helpers/errors';
 import { Request, Response, NextFunction } from 'express';
 
-const findSession = (region: number, limit: number, date: string) => {
+const findSession = (
+  region: number,
+  limit: number,
+  date: string,
+  pages: number
+) => {
   let sql =
     'SELECT id_session, sessions.name, DATE_FORMAT(date, "%Y/%m/%d %H:%i:%s") AS date, spot_name, address, nb_hiki_max, sessions.id_department, id_surf_style, carpool, id_user, DATE_FORMAT(date, "%d/%m/%Y") AS nice_date, DATE_FORMAT(date, "%kh%i") AS nice_time FROM sessions';
   const sqlValue: Array<string | number> = [];
-  if (region) {
-    sql +=
-      ' INNER JOIN departments ON sessions.id_department=departments.id_department INNER JOIN regions ON departments.id_region=regions.id_region WHERE departments.id_region = ?';
-    sqlValue.push(region);
+
+  if (!region && !date) {
+    if (pages === 0) {
+      sql += ' ORDER BY id_session DESC LIMIT ?';
+      sqlValue.push(10);
+    } else if (pages > 0) {
+      sql += ' ORDER BY id_session DESC LIMIT ? OFFSET ?';
+      sqlValue.push(10, pages);
+    }
+  } else if (region || date) {
+    if (region) {
+      sql +=
+        ' INNER JOIN departments ON sessions.id_department=departments.id_department INNER JOIN regions ON departments.id_region=regions.id_region WHERE departments.id_region = ?';
+      sqlValue.push(region);
+      if (date) {
+        sql += ' AND date = ?';
+        sqlValue.push(date);
+      }
+      if (pages === 0) {
+        sql += ' ORDER BY id_session DESC LIMIT ?';
+        sqlValue.push(10);
+      } else if (pages > 0) {
+        sql += ' ORDER BY id_session DESC LIMIT ? OFFSET ?';
+        sqlValue.push(10, pages);
+      }
+    }
+    if (date && !region) {
+      sql += ' WHERE date = ?';
+      sqlValue.push(date);
+      if (pages === 0) {
+        sql += ' ORDER BY id_session DESC LIMIT ?';
+        sqlValue.push(10);
+      } else if (pages > 0) {
+        sql += ' ORDER BY id_session DESC LIMIT ? OFFSET ?';
+        sqlValue.push(10, pages);
+      }
+    }
   }
-  if (date) {
-    region ? (sql += ' AND date = ?') : (sql += ' WHERE date = ?');
-    sqlValue.push(date);
+
+  if (limit === 3) {
+    sql += ' LIMIT ?';
+    sqlValue.push(3);
   }
-  if (limit) {
-    sql += ` LIMIT ?`;
-    sqlValue.push(limit);
-  }
+
+  console.log(sql);
+  console.log(sqlValue);
 
   return connection
     .promise()

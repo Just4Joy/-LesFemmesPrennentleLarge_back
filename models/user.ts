@@ -159,8 +159,6 @@ const User = {
   allUserBySession,
   subscribe,
   unsubscribe,
-  
-  
 };
 
 export default User;
