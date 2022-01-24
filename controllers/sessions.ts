@@ -196,4 +196,18 @@ sessionsController.delete('/:id_session/weather/:id_weather', (async (
   }
 }) as RequestHandler);
 
+sessionsController.delete('/:idSession', (async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { idSession } = req.params;
+    const deletedSession = await Session.destroy(parseInt(idSession, 10));
+    console.log(deletedSession);
+    return res.status(201).send('SESSION DELETED');
+  } catch (err) {
+    console.log(err);
+  }
+}) as RequestHandler);
+
 export default sessionsController;
