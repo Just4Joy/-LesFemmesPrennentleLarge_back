@@ -30,7 +30,7 @@ const findSession = (
   }
 
   if (limit === 3) {
-    sql += ' LIMIT ?';
+    sql += ' ORDER BY id_session DESC LIMIT ?';
     sqlValue.push(3);
   } else {
     if (pages === 0) {

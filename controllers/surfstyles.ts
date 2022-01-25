@@ -27,7 +27,7 @@ surfStyleController.get(
     const { id } = req.params as ISurfStyle;
     try {
       const result: ISurfStyle = await SurfStyle.findSurfStyleById(id);
-      console.log(result);
+
       res.status(200).json(result);
     } catch (err) {
       next(err);
