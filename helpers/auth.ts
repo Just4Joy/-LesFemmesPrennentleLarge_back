@@ -17,6 +17,7 @@ interface ICookie {
 
 const getCurrentSession = (req: Request, res: Response, next: NextFunction) => {
   const myCookie = req.cookies as ICookie;
+
   if (!myCookie.user_token) {
     next(new ErrorHandler(401, 'Unauthorized user, please login'));
   } else {

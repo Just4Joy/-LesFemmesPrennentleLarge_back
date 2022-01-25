@@ -7,6 +7,7 @@ import { ErrorHandler } from '../helpers/errors';
 import IUser from '../interfaces/IUser';
 import { ResultSetHeader } from 'mysql2';
 import Weather from '../models/weather';
+import { getCurrentSession } from '../helpers/auth';
 
 const sessionsController = express.Router();
 
@@ -56,7 +57,7 @@ sessionsController.post(
     (async () => {
       try {
         const session = req.body as ISession;
-        console.log(session);
+
         const insertId: number = await Session.create(session);
 
         return res.status(200).json({ id_session: insertId, ...req.body });
@@ -86,19 +87,21 @@ sessionsController.put(
 );
 
 sessionsController.post(
-  '/:id_session/users/',
+  '/:id_session/users/:id_user',
   (req: Request, res: Response, next: NextFunction) => {
     (async () => {
       try {
         const { id_session } = req.params as ISession;
-        const { id_user } = req.body as IUser;
+        const { id_user } = req.params as IUser;
+        console.log(id_session, id_user);
         const result: any = await Session.checkIfUserHasSubscribe(
           id_user,
           id_session
         );
+        console.log(result);
         if (!result[0]) {
           const subscription: any = await User.subscribe(id_user, id_session);
-
+          // console.log(subscription);
           return res.status(201).json('SUBSCRIPTION ADDED');
         } else return res.status(422).json('USER ALREADY SUBSCRIBE');
       } catch (err) {
@@ -124,7 +127,6 @@ sessionsController.delete(
             id_user,
             id_session
           );
-          console.log(unsubscription, 'subscription');
           return res.status(201).json('SUBSCRIPTION REMOVED');
         } else return res.status(404).json('RESSOURCE NOT FOUND');
       } catch (err) {
@@ -162,7 +164,6 @@ sessionsController.get('/:id_session/weather', (async (
   const sessionWeather = await Weather.getWeatherBySession(
     parseInt(id_session, 10)
   );
-  console.log(sessionWeather);
   res.status(200).json(sessionWeather);
 }) as RequestHandler);
 
@@ -206,7 +207,7 @@ sessionsController.delete('/:idSession', (async (
   try {
     const { idSession } = req.params;
     const deletedSession = await Session.destroy(parseInt(idSession, 10));
-    console.log(deletedSession);
+
     return res.status(201).send('SESSION DELETED');
   } catch (err) {
     console.log(err);

@@ -25,7 +25,7 @@ departmentsController.get(
     const { id } = req.params as IDepartment;
     try {
       const result: IDepartment = await Department.findDepartmentById(id);
-      console.log(result);
+
       res.status(200).json(result);
     } catch (err) {
       next(err);

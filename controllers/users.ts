@@ -30,7 +30,7 @@ userController.get('/:id', (async (
   const { id } = req.params as IUser;
   try {
     const result: IUser = await User.findOneById(id);
-    console.log(result);
+
     res.status(200).json(result);
   } catch (err) {
     next(err);
@@ -41,7 +41,6 @@ userController.post('/', User.validateUser, (async (
   req: Request,
   res: Response
 ) => {
-  console.log(req);
   const { email } = req.body as IUser;
   const existingEmail: IUser = await User.findByEmail(email);
   if (existingEmail) {
@@ -63,7 +62,7 @@ userController.put(
 
       if (foundUser) {
         const UpdatedUser = await User.update(req.body, parseInt(idUser, 10));
-        console.log(UpdatedUser);
+
         return res.status(201).send('USER MODIFIED');
       }
       return res.status(401).send('USER NOT FOUND');
@@ -134,7 +133,7 @@ userController.delete('/:idUser', Auth.getCurrentSession, (async (
   try {
     const { idUser } = req.params;
     const deletedUser = await User.destroy(parseInt(idUser, 10));
-    console.log(deletedUser);
+
     return res.status(201).send('USER DELETED');
   } catch (err) {
     console.log(err);
