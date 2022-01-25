@@ -162,6 +162,28 @@ const destroy = (id: number) => {
     .query<ISession[]>('DELETE FROM sessions WHERE id_session = ?', [id]);
 };
 
+// const findSessionByUser = (id: number) => {
+//   return connection
+//     .promise()
+//     .query<ISession[]>(
+//       `SELECT s.* FROM sessions as s
+//   INNER JOIN users_has_sessions as us ON s.id_session = us.id_session
+//   WHERE us.id_user = ?`,
+//       [id]
+//     )
+//     .then(([results]) => results);
+// };
+
+const findSessionByIdUser = (id: number) => {
+  return connection
+    .promise()
+    .query<ISession[]>(
+      `SELECT id_session, sessions.name, DATE_FORMAT(date, "%Y/%m/%d %H:%i:%s") AS date, spot_name, address, nb_hiki_max, sessions.id_department, id_surf_style, carpool, id_user, DATE_FORMAT(date, "%d/%m/%Y") AS nice_date, DATE_FORMAT(date, "%kh%i") AS nice_time FROM sessions WHERE id_user = ?`,
+      [id]
+    )
+    .then(([results]) => results);
+};
+
 export default {
   findSession,
   create,
@@ -171,4 +193,6 @@ export default {
   sessionExists,
   checkIfUserHasSubscribe,
   destroy,
+  findSessionByIdUser,
+  // findSessionByUser,
 };

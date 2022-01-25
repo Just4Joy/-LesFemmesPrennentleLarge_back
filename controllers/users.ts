@@ -6,6 +6,8 @@ import Schema from '../_utils/validator';
 import IUser from '../interfaces/IUser';
 import * as Auth from '../helpers/auth';
 import ISurfSkill from '../interfaces/ISurfskills';
+import ISession from '../interfaces/ISession';
+import Session from '../models/session';
 
 const userController = express.Router();
 
@@ -87,6 +89,27 @@ userController.get('/:id_user/surfskills', (async (
         parseInt(id_user, 10)
       );
       if (surfskills) return res.status(200).json(surfskills);
+      else return res.status(404).send('RESSOURCE NOT FOUND');
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}) as RequestHandler);
+
+userController.get('/:id_user/sessions', (async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { id_user } = req.params;
+
+    const foundUser: IUser = await User.findOneById(parseInt(id_user, 10));
+
+    if (foundUser) {
+      const sessions: ISession[] = await Session.findSessionByIdUser(
+        parseInt(id_user, 10)
+      );
+      if (sessions) return res.status(200).json(sessions);
       else return res.status(404).send('RESSOURCE NOT FOUND');
     }
   } catch (err) {
