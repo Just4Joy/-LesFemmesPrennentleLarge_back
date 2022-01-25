@@ -177,7 +177,10 @@ const destroy = (id: number) => {
 const findSessionByIdUser = (id: number) => {
   return connection
     .promise()
-    .query<ISession[]>(`SELECT * FROM sessions WHERE id_user = ?`, [id])
+    .query<ISession[]>(
+      `SELECT id_session, sessions.name, DATE_FORMAT(date, "%Y/%m/%d %H:%i:%s") AS date, spot_name, address, nb_hiki_max, sessions.id_department, id_surf_style, carpool, id_user, DATE_FORMAT(date, "%d/%m/%Y") AS nice_date, DATE_FORMAT(date, "%kh%i") AS nice_time FROM sessions WHERE id_user = ?`,
+      [id]
+    )
     .then(([results]) => results);
 };
 
