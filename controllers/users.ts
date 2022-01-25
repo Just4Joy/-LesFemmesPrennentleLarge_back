@@ -54,16 +54,17 @@ userController.post('/', User.validateUser, (async (
 userController.put(
   '/:idUser',
   Auth.getCurrentSession,
-  User.validateUser,
+  /* User.validateUser, */
   (async (req: Request, res: Response) => {
+    console.log(req);
     try {
       const { idUser } = req.params;
       const foundUser: IUser = await User.findOneById(parseInt(idUser, 10));
 
       if (foundUser) {
         const UpdatedUser = await User.update(req.body, parseInt(idUser, 10));
-
-        return res.status(201).send('USER MODIFIED');
+        console.log(UpdatedUser);
+        return res.status(200).send('USER MODIFIED');
       }
       return res.status(401).send('USER NOT FOUND');
     } catch (err) {
