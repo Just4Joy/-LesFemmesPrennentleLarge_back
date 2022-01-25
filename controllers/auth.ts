@@ -17,10 +17,8 @@ authController.post('/', (async (
 ) => {
   try {
     const { email, password } = req.body as IUser;
-    console.log(email, password);
 
     const user: IUser = await User.findByEmail(email);
-    console.log(user);
 
     if (!user) throw new ErrorHandler(401, 'This user does not exist');
     else {
@@ -28,10 +26,10 @@ authController.post('/', (async (
         password,
         user.password
       );
-      console.log(passwordIsCorrect);
+
       if (passwordIsCorrect) {
         const token = calculateToken(email, Number(user.id_user), user.wahine);
-        console.log(token);
+
         res.cookie('user_token', token);
         res.json({
           id_user: user.id_user,

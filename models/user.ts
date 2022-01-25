@@ -99,12 +99,10 @@ const destroy = (id: number) => {
 };
 
 const create = async (payload: IUser) => {
-  console.log(payload);
   const createdDateServ = new Date()
     .toISOString()
     .slice(0, 19)
     .replace('T', ' ');
-  console.log(createdDateServ);
   const { firstname, lastname, email, password, created_date, wahine, phone } =
     payload;
   const hashedPassword = await hashPassword(password);

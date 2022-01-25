@@ -28,7 +28,7 @@ surfskillsController.get(
     const { id } = req.params as ISurfSkill;
     try {
       const result: ISurfSkill = await SurfSkills.findSurfSkillsById(id);
-      console.log(result);
+
       res.status(200).json(result);
     } catch (err) {
       next(err);
