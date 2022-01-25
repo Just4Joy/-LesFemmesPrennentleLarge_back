@@ -93,15 +93,16 @@ sessionsController.post(
       try {
         const { id_session } = req.params as ISession;
         const { id_user } = req.params as IUser;
-        console.log(id_session, id_user);
         const result: any = await Session.checkIfUserHasSubscribe(
           id_user,
           id_session
         );
-        console.log(result);
         if (!result[0]) {
           const subscription: any = await User.subscribe(id_user, id_session);
-          // console.log(subscription);
+          if (subscription.affectedRows === 1) {
+            const users: any = await User.allUserBySession(id_session);
+            return res.status(200).json(users);
+          }
           return res.status(201).json('SUBSCRIPTION ADDED');
         } else return res.status(422).json('USER ALREADY SUBSCRIBE');
       } catch (err) {
@@ -127,6 +128,10 @@ sessionsController.delete(
             id_user,
             id_session
           );
+          if (unsubscription.affectedRows === 1) {
+            const users: any = await User.allUserBySession(id_session);
+            return res.status(200).json(users);
+          }
           return res.status(201).json('SUBSCRIPTION REMOVED');
         } else return res.status(404).json('RESSOURCE NOT FOUND');
       } catch (err) {
