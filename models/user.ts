@@ -141,7 +141,8 @@ const unsubscribe = (id_user: number, id_session: number) => {
     .query<ResultSetHeader>(
       'DELETE FROM users_has_sessions WHERE id_user = ? AND id_session = ?',
       [id_user, id_session]
-    );
+    )
+    .then(([result]) => result);
 };
 
 const User = {
