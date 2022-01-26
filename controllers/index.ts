@@ -11,13 +11,13 @@ import authController from './auth';
 
 const setupRoutes = (app: express.Application) => {
   app.use('/api/users', usersController);
-  app.use('/api/surfstyle', surfStylesController);
-  app.use('/api/usertype', userTypesController);
+  app.use('/api/surfstyles', surfStylesController);
+  app.use('/api/usertypes', userTypesController);
   app.use('/api/regions', regionsController);
   app.use('/api/sessions', sessionsController);
   app.use('/api/departments', departmentsController);
   app.use('/api/weather', weatherController);
-  app.use('/api/surfskill', surfskillsController);
+  app.use('/api/surfskills', surfskillsController);
   app.use('/api/login', authController);
 };
 
