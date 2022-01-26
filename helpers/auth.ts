@@ -4,7 +4,7 @@ import IUserInfo from '../interfaces/IUserInfo';
 import jwt from 'jsonwebtoken';
 import 'dotenv/config';
 
-const calculateToken = (userEmail = '', idUser = 0, wahine = false) => {
+const calculateToken = (userEmail = '', idUser = 0, wahine = 0) => {
   return jwt.sign(
     { email: userEmail, id: idUser, wahine: wahine },
     process.env.PRIVATE_KEY as string
