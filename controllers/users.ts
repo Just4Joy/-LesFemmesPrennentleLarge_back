@@ -106,7 +106,7 @@ userController.get('/:id_user/sessions', (async (
     const foundUser: IUser = await User.findOneById(parseInt(id_user, 10));
 
     if (foundUser) {
-      const sessions: ISession[] = await Session.findSessionByIdUser(
+      const sessions: ISession[] = await Session.findSessionsByIdUser(
         parseInt(id_user, 10)
       );
       if (sessions) return res.status(200).json(sessions);
