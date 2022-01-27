@@ -28,7 +28,11 @@ authController.post('/', (async (
       );
 
       if (passwordIsCorrect) {
-        const token = calculateToken(email, Number(user.id_user), user.wahine);
+        const token = calculateToken(
+          email,
+          Number(user.id_user),
+          Number(user.wahine)
+        );
 
         res.cookie('user_token', token);
         res.json({

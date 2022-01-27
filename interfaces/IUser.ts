@@ -14,7 +14,7 @@ export default interface IUser extends RowDataPacket {
   created_date: Date;
   id_departement: number;
   id_surf_style: number;
-  wahine: boolean;
+  wahine: number;
   desc: string;
   phone: number;
 }
