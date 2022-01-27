@@ -45,6 +45,7 @@ const validateUser = (req: Request, res: Response, next: NextFunction) => {
     phone: Joi.string().max(10).presence(required),
   }).validate(req.body, { abortEarly: false }).error;
   if (errors) {
+    console.log(errors.message);
     next(new ErrorHandler(422, errors.message));
   } else {
     next();
