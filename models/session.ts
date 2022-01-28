@@ -108,6 +108,7 @@ const update = (
 const sessionExists = (req: Request, res: Response, next: NextFunction) => {
   // Récupèrer l'id user de req.params
   const { idSession } = req.params;
+  console.log(idSession);
   // Vérifier si le user existe
   findOne(Number(idSession))
     .then((sessionExists) => {

@@ -29,6 +29,7 @@ sessionsController.get(
         );
         return res.status(200).json(sessions);
       } catch (err) {
+        console.log(err);
         next(err);
       }
     })();
@@ -205,17 +206,18 @@ sessionsController.delete('/:id_session/weather/:id_weather', (async (
   }
 }) as RequestHandler);
 
-sessionsController.delete('/:idSession', (async (
+sessionsController.delete('/:idSession', Session.sessionExists, (async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) => {
   try {
-    const { idSession } = req.params;
+    const { idSession } = req.params as ISession;
     const deletedSession = await Session.destroy(parseInt(idSession, 10));
 
     return res.status(201).send('SESSION DELETED');
   } catch (err) {
-    console.log(err);
+    next(err);
   }
 }) as RequestHandler);
 

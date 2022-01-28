@@ -2,7 +2,6 @@ import express from 'express';
 import { Request, Response, NextFunction, RequestHandler } from 'express';
 import User from '../models/user';
 import SurfSkills from '../models/surfskill';
-import Schema from '../_utils/validator';
 import IUser from '../interfaces/IUser';
 import * as Auth from '../helpers/auth';
 import ISurfSkill from '../interfaces/ISurfskills';
