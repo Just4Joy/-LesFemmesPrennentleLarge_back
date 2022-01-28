@@ -2,7 +2,6 @@ import express from 'express';
 import { Request, Response, NextFunction, RequestHandler } from 'express';
 import User from '../models/user';
 import SurfSkills from '../models/surfskill';
-import Schema from '../_utils/validator';
 import IUser from '../interfaces/IUser';
 import * as Auth from '../helpers/auth';
 import ISurfSkill from '../interfaces/ISurfskills';
@@ -56,7 +55,7 @@ userController.post('/', User.validateUser, (async (
 userController.put(
   '/:idUser',
   Auth.getCurrentSession,
-  /* User.validateUser, */
+  User.validateUser,
   (async (req: Request, res: Response) => {
     console.log(req);
     try {
@@ -65,12 +64,12 @@ userController.put(
 
       if (foundUser) {
         const UpdatedUser = await User.update(req.body, parseInt(idUser, 10));
-        console.log(UpdatedUser);
+
         return res.status(200).send('USER MODIFIED');
       }
-      return res.status(401).send('USER NOT FOUND');
+      return res.status(404).send('USER NOT FOUND');
     } catch (err) {
-      console.log(err);
+      return res.status(404).json(err);
     }
   }) as RequestHandler
 );
