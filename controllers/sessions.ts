@@ -186,6 +186,7 @@ sessionsController.post('/:id_session/weather', (async (
       parseInt(id_session, 10),
       parseInt(id_weather, 10)
     );
+    console.log(created);
     return res.status(201).json(created);
   } catch (err) {
     return res.status(500).json(err);
