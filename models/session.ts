@@ -9,12 +9,17 @@ const findSession = (
   region: number,
   limit: number,
   date: string,
-  pages: number
+  pages: number,
+  wahine: number
 ) => {
   let sql =
     'SELECT id_session, sessions.name, DATE_FORMAT(date, "%Y/%m/%d %H:%i:%s") AS date, spot_name, address, nb_hiki_max, sessions.id_department, id_surf_style, carpool, id_user, DATE_FORMAT(date, "%d/%m/%Y") AS nice_date, DATE_FORMAT(date, "%kh%i") AS nice_time FROM sessions';
   const sqlValue: Array<string | number> = [];
 
+  if (wahine) {
+    sql += ` WHERE id_user = ?`;
+    sqlValue.push(wahine);
+  }
   if (region) {
     sql +=
       ' INNER JOIN departments ON sessions.id_department=departments.id_department INNER JOIN regions ON departments.id_region=regions.id_region WHERE departments.id_region = ?';
@@ -175,14 +180,21 @@ const destroy = (id: number) => {
 //     .then(([results]) => results);
 // };
 
-const findSessionByIdUser = (id: number) => {
+const findSessionsByIdUser = (idUser: number) => {
   return connection
     .promise()
     .query<ISession[]>(
-      `SELECT id_session, sessions.name, DATE_FORMAT(date, "%Y/%m/%d %H:%i:%s") AS date, spot_name, address, nb_hiki_max, sessions.id_department, id_surf_style, carpool, id_user, DATE_FORMAT(date, "%d/%m/%Y") AS nice_date, DATE_FORMAT(date, "%kh%i") AS nice_time FROM sessions WHERE id_user = ?`,
-      [id]
+      `SELECT s.id_session, s.name, DATE_FORMAT(s.date, "%Y/%m/%d %H:%i:%s") AS date, s.spot_name, s.address, s.nb_hiki_max, s.id_department, s.id_surf_style, s.carpool, s.id_user, DATE_FORMAT(s.date, "%d/%m/%Y") AS nice_date, DATE_FORMAT(s.date, "%kh%i") AS nice_time 
+      FROM sessions s 
+      INNER JOIN users_has_sessions us 
+      ON s.id_session = us.id_session 
+      AND us.id_user = ?`,
+      [idUser]
     )
-    .then(([results]) => results);
+    .then(([results]) => {
+      console.log(results);
+      return results;
+    });
 };
 
 export default {
@@ -194,6 +206,6 @@ export default {
   sessionExists,
   checkIfUserHasSubscribe,
   destroy,
-  findSessionByIdUser,
+  findSessionsByIdUser,
   // findSessionByUser,
 };

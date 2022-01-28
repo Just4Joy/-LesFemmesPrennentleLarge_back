@@ -19,13 +19,15 @@ sessionsController.get(
       const limit = req.query.limit as string;
       const date = req.query.date as string;
       const pages = req.query.pages as string;
+      const wahine = req.query.wahine as string;
 
       try {
         const sessions: ISession[] = await Session.findSession(
           Number(region),
           Number(limit),
           date,
-          Number(pages)
+          Number(pages),
+          Number(wahine)
         );
         return res.status(200).json(sessions);
       } catch (err) {
