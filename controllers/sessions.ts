@@ -5,11 +5,12 @@ import User from '../models/user';
 import ISession from '../interfaces/ISession';
 import { ErrorHandler } from '../helpers/errors';
 import IUser from '../interfaces/IUser';
-import { ResultSetHeader } from 'mysql2';
 import Weather from '../models/weather';
-import { getCurrentSession } from '../helpers/auth';
+import { number } from 'joi';
 
 const sessionsController = express.Router();
+
+type Result = { id_user: number; id_session: number };
 
 sessionsController.get(
   '/',
@@ -31,7 +32,6 @@ sessionsController.get(
         );
         return res.status(200).json(sessions);
       } catch (err) {
-        console.log(err);
         next(err);
       }
     })();
@@ -186,7 +186,6 @@ sessionsController.post('/:id_session/weather', (async (
       parseInt(id_session, 10),
       parseInt(id_weather, 10)
     );
-    console.log(created);
     return res.status(201).json(created);
   } catch (err) {
     return res.status(500).json(err);

@@ -2,11 +2,9 @@ import { Request, Response, NextFunction, RequestHandler } from 'express';
 import User from '../models/user';
 import IUser from '../interfaces/IUser';
 import { ErrorHandler } from '../helpers/errors';
-import { calculateToken, getCurrentSession } from '../helpers/auth';
+import { calculateToken } from '../helpers/auth';
 import express from 'express';
 import Imagekit from 'imagekit';
-import { v4 as uuidv4 } from 'uuid';
-import * as dotenv from 'dotenv';
 
 const authController = express.Router();
 
@@ -47,7 +45,7 @@ authController.post('/', (async (
   }
 }) as RequestHandler);
 
-authController.get('/', (async (req: Request, res: Response) => {
+authController.get('/', ((req: Request, res: Response) => {
   const imagekit = new Imagekit({
     publicKey: String(process.env.publicAPIKEY),
     privateKey: String(process.env.privateAPIKey),
