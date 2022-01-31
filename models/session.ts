@@ -35,15 +35,15 @@ const findSession = (
   }
 
   if (limit === 3) {
-    sql += ' ORDER BY id_session DESC LIMIT ?';
+    sql += ' ORDER BY date DESC LIMIT ?';
     sqlValue.push(3);
   } else {
     if (pages === 0) {
-      sql += ' ORDER BY id_session DESC LIMIT ?';
-      sqlValue.push(10);
+      sql += ' ORDER BY date DESC LIMIT ?';
+      sqlValue.push(9);
     } else if (pages > 0) {
-      sql += ' ORDER BY id_session DESC LIMIT ? OFFSET ?';
-      sqlValue.push(10, pages);
+      sql += ' ORDER BY date DESC LIMIT ? OFFSET ?';
+      sqlValue.push(9, pages);
     }
   }
 
