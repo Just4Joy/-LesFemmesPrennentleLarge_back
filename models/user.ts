@@ -1,9 +1,8 @@
 import connection from '../helpers/db-config';
 import IUser from '../interfaces/IUser';
 import { ResultSetHeader } from 'mysql2';
-import { query } from 'express';
 import argon2 from 'argon2';
-import Joi, { optional } from 'joi';
+import Joi from 'joi';
 import { ErrorHandler } from '../helpers/errors';
 import { Request, Response, NextFunction } from 'express';
 
@@ -45,6 +44,7 @@ const validateUser = (req: Request, res: Response, next: NextFunction) => {
     phone: Joi.string().max(10).presence(required),
   }).validate(req.body, { abortEarly: false }).error;
   if (errors) {
+    console.log(errors.message);
     next(new ErrorHandler(422, errors.message));
   } else {
     next();

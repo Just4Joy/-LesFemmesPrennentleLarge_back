@@ -2,7 +2,6 @@ import express from 'express';
 import { Request, Response, NextFunction, RequestHandler } from 'express';
 import User from '../models/user';
 import SurfSkills from '../models/surfskill';
-import Schema from '../_utils/validator';
 import IUser from '../interfaces/IUser';
 import * as Auth from '../helpers/auth';
 import ISurfSkill from '../interfaces/ISurfskills';
@@ -56,7 +55,7 @@ userController.post('/', User.validateUser, (async (
 userController.put(
   '/:idUser',
   Auth.getCurrentSession,
-  /* User.validateUser, */
+  User.validateUser,
   (async (req: Request, res: Response) => {
     console.log(req);
     try {
@@ -65,12 +64,12 @@ userController.put(
 
       if (foundUser) {
         const UpdatedUser = await User.update(req.body, parseInt(idUser, 10));
-        console.log(UpdatedUser);
+
         return res.status(200).send('USER MODIFIED');
       }
-      return res.status(401).send('USER NOT FOUND');
+      return res.status(404).send('USER NOT FOUND');
     } catch (err) {
-      console.log(err);
+      return res.status(404).json(err);
     }
   }) as RequestHandler
 );
@@ -106,7 +105,7 @@ userController.get('/:id_user/sessions', (async (
     const foundUser: IUser = await User.findOneById(parseInt(id_user, 10));
 
     if (foundUser) {
-      const sessions: ISession[] = await Session.findSessionByIdUser(
+      const sessions: ISession[] = await Session.findSessionsByIdUser(
         parseInt(id_user, 10)
       );
       if (sessions) return res.status(200).json(sessions);
@@ -134,15 +133,15 @@ userController.post('/:id_user/surfskills/', (async (
   }
 }) as RequestHandler);
 
-userController.delete('/:id_user/surfskills/:id_surf_skill', (async (
+userController.delete('/:id_user/surfskills/', (async (
   req: Request,
   res: Response
 ) => {
-  const { id_user, id_surf_skill } = req.params;
+  console.log(req)
+  const { id_user } = req.params;
   try {
-    const created = await SurfSkills.destroy(
-      parseInt(id_user, 10),
-      parseInt(id_surf_skill)
+    const destroyed = await SurfSkills.destroyAll(
+      parseInt(id_user)
     );
     res.status(204).json('RESSOURCE DELETED');
   } catch (err) {

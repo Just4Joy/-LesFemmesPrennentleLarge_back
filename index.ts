@@ -1,9 +1,8 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express from 'express';
 import cookieParser from 'cookie-parser';
 import { handleError } from './helpers/errors';
 import cors from 'cors';
 import 'dotenv/config';
-// import fileUpload from 'express-fileupload';
 
 import helmet from 'helmet';
 
@@ -21,9 +20,6 @@ app.use(cors(corsOptions));
 app.use(helmet());
 app.use(express.json());
 app.use(cookieParser());
-
-//Options par défault de fileUpload
-// app.use(fileUpload());
 
 //middleware perso pour ajouter les headers nécessaires à react-admin
 // app.use((req: Request, res: Response, next: NextFunction) => {

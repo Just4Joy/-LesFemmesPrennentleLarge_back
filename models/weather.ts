@@ -1,5 +1,6 @@
 import IWeather from '../interfaces/IWeather';
 import connection from '../helpers/db-config';
+import session from './session';
 
 const db = connection.promise();
 
