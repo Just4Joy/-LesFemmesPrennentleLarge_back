@@ -63,11 +63,16 @@ const validateLogin = (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const findMany = () => {
-  const sql = 'SELECT * from users';
+const findMany = (sortBy: string = ''): Promise<IUser[]> => {
+  console.log(sortBy);
+  let sql: string =
+    'SELECT id_user, firstname, lastname, email, wahine,  admin, id_user AS id from users';
+  if (sortBy) {
+    sql += ` ORDER BY ${sortBy}`;
+  }
   return connection
     .promise()
-    .query<IUser[]>(sql, [])
+    .query<IUser[]>(sql)
     .then(([results]) => results);
 };
 
@@ -81,15 +86,48 @@ const findByEmail = (email: string): Promise<IUser> => {
 const findOneById = (id: number): Promise<IUser> => {
   return connection
     .promise()
-    .query<IUser[]>('SELECT * FROM users WHERE id_user = ?', [id])
+    .query<IUser[]>('SELECT *, id_user AS id FROM users WHERE id_user = ?', [
+      id,
+    ])
     .then(([results]) => results[0]);
 };
 
 const update = (data: any, id: number) => {
+  let sql = 'UPDATE users SET ';
+  const sqlValues: Array<string | number | boolean> = [];
+  let oneValue = false;
+  console.log(data);
+  if (data.firstname) {
+    sql += 'firstname = ? ';
+    sqlValues.push(data.firstname);
+    oneValue = true;
+  }
+  if (data.lastname) {
+    sql += oneValue ? ', lastname = ? ' : ' lastname = ? ';
+    sqlValues.push(data.lastname);
+    oneValue = true;
+  }
+  if (data.email) {
+    sql += oneValue ? ', email = ? ' : ' email = ? ';
+    sqlValues.push(data.email);
+    oneValue = true;
+  }
+  if (data.wahine != undefined) {
+    sql += oneValue ? ', wahine = ? ' : ' wahine = ? ';
+    sqlValues.push(data.wahine);
+    oneValue = true;
+  }
+  if (data.admin != undefined) {
+    sql += oneValue ? ', admin = ? ' : ' admin = ? ';
+    sqlValues.push(data.admin);
+    oneValue = true;
+  }
+  sql += ' WHERE id_user = ?';
+  sqlValues.push(id);
   return connection
     .promise()
-    .query<ResultSetHeader>('UPDATE users SET ? WHERE id_user = ?', [data, id])
-    .then(([results]) => results);
+    .query<ResultSetHeader>(sql, sqlValues)
+    .then(([results]) => results.affectedRows === 1);
 };
 
 const destroy = (id: number) => {

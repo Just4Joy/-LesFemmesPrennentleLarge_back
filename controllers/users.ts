@@ -7,16 +7,24 @@ import * as Auth from '../helpers/auth';
 import ISurfSkill from '../interfaces/ISurfskills';
 import ISession from '../interfaces/ISession';
 import Session from '../models/session';
+import { formatSortString } from '../helpers/functions';
 
 const userController = express.Router();
 
 userController.get('/', (async (
-  _req: Request,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
+  console.log(req.query);
+  const sortBy: string = req.query.sort as string;
+  console.log(sortBy);
   try {
-    const result: IUser[] = await User.findMany();
+    const result: IUser[] = await User.findMany(formatSortString(sortBy));
+    res.setHeader(
+      'Content-Range',
+      `users : 0-${result.length}/${result.length + 1}`
+    );
     res.status(200).json(result);
   } catch (err) {
     next(err);
@@ -55,17 +63,21 @@ userController.post('/', User.validateUser, (async (
 userController.put(
   '/:idUser',
   Auth.getCurrentSession,
+  Auth.checkSessionPrivileges,
   User.validateUser,
-  (async (req: Request, res: Response) => {
+  (async (req: Request<any>, res: Response) => {
     console.log(req);
     try {
       const { idUser } = req.params;
+      console.log(idUser);
       const foundUser: IUser = await User.findOneById(parseInt(idUser, 10));
 
       if (foundUser) {
         const UpdatedUser = await User.update(req.body, parseInt(idUser, 10));
 
-        return res.status(200).send('USER MODIFIED');
+        if (UpdatedUser) {
+          res.status(200).send(req.record); // react-admin needs this response
+        }
       }
       return res.status(404).send('USER NOT FOUND');
     } catch (err) {

@@ -29,7 +29,8 @@ authController.post('/', (async (
         const token = calculateToken(
           email,
           Number(user.id_user),
-          Number(user.wahine)
+          Number(user.wahine),
+          Number(user.admin)
         );
 
         res.cookie('user_token', token);
@@ -37,6 +38,7 @@ authController.post('/', (async (
           id_user: user.id_user,
           firstname: user.firstname,
           wahine: user.wahine,
+          admin: user.admin,
         });
       } else throw new ErrorHandler(401, 'Invalid Credentials');
     }
