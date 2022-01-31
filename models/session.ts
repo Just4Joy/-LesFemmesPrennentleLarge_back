@@ -20,12 +20,12 @@ const findSession = (
       ' INNER JOIN departments ON sessions.id_department=departments.id_department INNER JOIN regions ON departments.id_region=regions.id_region WHERE departments.id_region = ?';
     sqlValue.push(region);
     if (date) {
-      sql += ' AND date = ?';
+      sql += ' AND DATE_FORMAT(date, "%Y-%m-%d") = ?';
       sqlValue.push(date);
     }
   }
   if (date && !region) {
-    sql += ' WHERE date = ?';
+    sql += ' WHERE DATE_FORMAT(date, "%Y-%m-%d") = ?';
     sqlValue.push(date);
   }
 
