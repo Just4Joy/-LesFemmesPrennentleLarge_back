@@ -133,15 +133,15 @@ userController.post('/:id_user/surfskills/', (async (
   }
 }) as RequestHandler);
 
-userController.delete('/:id_user/surfskills/:id_surf_skill', (async (
+userController.delete('/:id_user/surfskills/', (async (
   req: Request,
   res: Response
 ) => {
-  const { id_user, id_surf_skill } = req.params;
+  console.log(req)
+  const { id_user } = req.params;
   try {
-    const created = await SurfSkills.destroy(
-      parseInt(id_user, 10),
-      parseInt(id_surf_skill)
+    const destroyed = await SurfSkills.destroyAll(
+      parseInt(id_user)
     );
     res.status(204).json('RESSOURCE DELETED');
   } catch (err) {
