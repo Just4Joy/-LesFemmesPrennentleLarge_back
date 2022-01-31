@@ -37,12 +37,12 @@ const create = (id_user: number, id_surf_skill: number) => {
     .then(([result]) => result);
 };
 
-const destroy = (id_user: number, id_surf_skill: number) => {
+const destroyAll = (id_user: number) => {
   return connection
     .promise()
     .query<ISurfSkills[]>(
-      'DELETE FROM users_has_surf_skills WHERE id_user = ? AND id_surf_skill = ?',
-      [id_user, id_surf_skill]
+      'DELETE FROM users_has_surf_skills WHERE id_user = ?',
+      [id_user]
     );
 };
 
@@ -51,7 +51,7 @@ const SurfSkills = {
   findSurfSkillsById,
   findSurfSkillsByUser,
   create,
-  destroy,
+  destroyAll,
 };
 
 export default SurfSkills;
