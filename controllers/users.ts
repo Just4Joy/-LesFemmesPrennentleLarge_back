@@ -136,7 +136,7 @@ userController.delete('/:id_user/surfskills/', (async (
   console.log(req);
   const { id_user } = req.params;
   try {
-    await SurfSkills.destroyAll(parseInt(id_user));
+    const destroyed = await SurfSkills.destroyAll(parseInt(id_user));
     res.status(204).json('RESSOURCE DELETED');
   } catch (err) {
     res.status(500).json(err);
