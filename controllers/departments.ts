@@ -1,5 +1,5 @@
 import express from 'express';
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, RequestHandler } from 'express';
 import Department from '../models/department';
 import IDepartment from '../interfaces/IDepartment';
 
@@ -19,18 +19,21 @@ departmentsController.get(
   }
 );
 
-departmentsController.get(
-  '/:id',
-  async (req: Request, res: Response, next: NextFunction) => {
-    const { id } = req.params as IDepartment;
-    try {
-      const result: IDepartment = await Department.findDepartmentById(id);
+departmentsController.get('/:id_department', (async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { id_department } = req.params as IDepartment;
+  try {
+    const result: IDepartment = await Department.findDepartmentById(
+      id_department
+    );
 
-      res.status(200).json(result);
-    } catch (err) {
-      next(err);
-    }
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
   }
-);
+}) as RequestHandler);
 
 export default departmentsController;
