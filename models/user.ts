@@ -85,7 +85,7 @@ const findOneById = (id: number): Promise<IUser> => {
     .then(([results]) => results[0]);
 };
 
-const update = (data: any, id: number) => {
+const update = (data: IUser, id: number) => {
   return connection
     .promise()
     .query<ResultSetHeader>('UPDATE users SET ? WHERE id_user = ?', [data, id])
@@ -99,10 +99,11 @@ const destroy = (id: number) => {
 };
 
 const create = async (payload: IUser) => {
-  const createdDateServ = new Date()
-    .toISOString()
-    .slice(0, 19)
-    .replace('T', ' ');
+  // En cours de développement
+  // const createdDateServ = new Date()
+  //   .toISOString()
+  //   .slice(0, 19)
+  //   .replace('T', ' ');
   const { firstname, lastname, email, password, created_date, wahine, phone } =
     payload;
   const hashedPassword = await hashPassword(password);

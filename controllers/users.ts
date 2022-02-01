@@ -23,14 +23,14 @@ userController.get('/', (async (
   }
 }) as RequestHandler);
 
-userController.get('/:id', (async (
+userController.get('/:id_user', (async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const { id } = req.params as IUser;
+  const { id_user } = req.params as IUser;
   try {
-    const result: IUser = await User.findOneById(id);
+    const result: IUser = await User.findOneById(id_user);
 
     res.status(200).json(result);
   } catch (err) {
@@ -53,17 +53,16 @@ userController.post('/', User.validateUser, (async (
 }) as RequestHandler);
 
 userController.put(
-  '/:idUser',
+  '/:id_user',
   Auth.getCurrentSession,
   User.validateUser,
   (async (req: Request, res: Response) => {
-    console.log(req);
     try {
-      const { idUser } = req.params;
-      const foundUser: IUser = await User.findOneById(parseInt(idUser, 10));
+      const { id_user } = req.params as IUser;
+      const foundUser: IUser = await User.findOneById(id_user);
 
       if (foundUser) {
-        const UpdatedUser = await User.update(req.body, parseInt(idUser, 10));
+        await User.update(req.body, id_user);
 
         return res.status(200).send('USER MODIFIED');
       }
@@ -120,13 +119,10 @@ userController.post('/:id_user/surfskills/', (async (
   req: Request,
   res: Response
 ) => {
-  const { id_user } = req.params;
-  const { id_surf_skill } = req.body;
+  const { id_user } = req.params as IUser;
+  const { id_surf_skill } = req.body as ISurfSkill;
   try {
-    const created = await SurfSkills.create(
-      parseInt(id_user, 10),
-      parseInt(id_surf_skill)
-    );
+    const created = await SurfSkills.create(id_user, id_surf_skill);
     res.status(201).json(created);
   } catch (err) {
     res.status(500).json(err);
@@ -137,12 +133,10 @@ userController.delete('/:id_user/surfskills/', (async (
   req: Request,
   res: Response
 ) => {
-  console.log(req)
+  console.log(req);
   const { id_user } = req.params;
   try {
-    const destroyed = await SurfSkills.destroyAll(
-      parseInt(id_user)
-    );
+    await SurfSkills.destroyAll(parseInt(id_user));
     res.status(204).json('RESSOURCE DELETED');
   } catch (err) {
     res.status(500).json(err);
@@ -155,7 +149,7 @@ userController.delete('/:idUser', Auth.getCurrentSession, (async (
 ) => {
   try {
     const { idUser } = req.params;
-    const deletedUser = await User.destroy(parseInt(idUser, 10));
+    await User.destroy(parseInt(idUser, 10));
 
     return res.status(201).send('USER DELETED');
   } catch (err) {
