@@ -22,11 +22,13 @@ surfStyleController.get(
 );
 
 surfStyleController.get(
-  '/:id',
+  '/:id_surf_style',
   async (req: Request, res: Response, next: NextFunction) => {
-    const { id } = req.params as ISurfStyle;
+    const { id_surf_style } = req.params as ISurfStyle;
     try {
-      const result: ISurfStyle = await SurfStyle.findSurfStyleById(id);
+      const result: ISurfStyle = await SurfStyle.findSurfStyleById(
+        id_surf_style
+      );
 
       res.status(200).json(result);
     } catch (err) {
