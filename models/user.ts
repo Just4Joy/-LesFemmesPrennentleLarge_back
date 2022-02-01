@@ -99,12 +99,12 @@ const destroy = (id: number) => {
 };
 
 const create = async (payload: IUser) => {
-  // En cours de développement
-  // const createdDateServ = new Date()
-  //   .toISOString()
-  //   .slice(0, 19)
-  //   .replace('T', ' ');
-  const { firstname, lastname, email, password, created_date, wahine, phone } =
+
+  const createdDateServ = new Date()
+    .toISOString()
+    .slice(0, 19)
+    .replace('T', ' ');
+  const { firstname, lastname, email, password, wahine, phone } =
     payload;
   const hashedPassword = await hashPassword(password);
 
@@ -112,7 +112,7 @@ const create = async (payload: IUser) => {
     .promise()
     .query<ResultSetHeader>(
       'INSERT INTO users (firstname, lastname, email, password, created_date, wahine, phone) VALUES (?,?,?,?,?,?,?)',
-      [firstname, lastname, email, hashedPassword, created_date, wahine, phone]
+      [firstname, lastname, email, hashedPassword, createdDateServ, wahine, phone]
     );
 };
 
