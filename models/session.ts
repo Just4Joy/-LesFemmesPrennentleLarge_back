@@ -10,10 +10,11 @@ const findSession = (
   limit: number,
   date: string,
   pages: number,
-  wahine: number
-) => {
+  wahine: number,
+  sortBy: string = ''
+): Promise<ISession[]> => {
   let sql =
-    'SELECT id_session, sessions.name, DATE_FORMAT(date, "%Y/%m/%d %H:%i:%s") AS date, spot_name, address, nb_hiki_max, sessions.id_department, id_surf_style, carpool, id_user, DATE_FORMAT(date, "%d/%m/%Y") AS nice_date, DATE_FORMAT(date, "%kh%i") AS nice_time FROM sessions';
+    'SELECT id_session AS id, sessions.name, DATE_FORMAT(date, "%Y/%m/%d %H:%i:%s") AS date, spot_name, address, nb_hiki_max, sessions.id_department, id_surf_style, carpool, id_user, DATE_FORMAT(date, "%d/%m/%Y") AS nice_date, DATE_FORMAT(date, "%kh%i") AS nice_time FROM sessions';
   const sqlValue: Array<string | number> = [];
 
   if (wahine) {
@@ -45,6 +46,9 @@ const findSession = (
       sql += ' ORDER BY id_session DESC LIMIT ? OFFSET ?';
       sqlValue.push(10, pages);
     }
+  }
+  if (sortBy) {
+    sql += ` ORDER BY ${sortBy}`;
   }
 
   // console.log(sql);
@@ -87,13 +91,18 @@ const create = (session: ISession): Promise<number> => {
     .then(([results]) => results.insertId);
 };
 
-const findOne = (id_session: number) => {
+const findOne = (id_session: number, display?: string) => {
+  let sql: string =
+    'SELECT id_session AS id, sessions.name, DATE_FORMAT(date, "%Y/%m/%d %H:%i:%s") AS date, spot_name, address, nb_hiki_max, sessions.id_department, id_surf_style, carpool, id_user, DATE_FORMAT(date, "%d/%m/%Y") AS nice_date, DATE_FORMAT(date, "%kh%i") AS nice_time FROM sessions WHERE id_session = ?';
+
+  if (display === 'all') {
+    sql =
+      'SELECT *, DATE_FORMAT(date, "%d/%m/%Y") AS nice_date, DATE_FORMAT(date, "%kh%i") AS nice_time FROM sessions WHERE id_session = ?';
+  }
+  console.log(id_session);
   return connection
     .promise()
-    .query<ISession[]>(
-      'SELECT *, DATE_FORMAT(date, "%d/%m/%Y") AS nice_date, DATE_FORMAT(date, "%kh%i") AS nice_time FROM sessions WHERE id_session = ?',
-      [id_session]
-    )
+    .query<ISession[]>(sql, [id_session])
     .then(([results]) => results[0]);
 };
 
@@ -101,19 +110,54 @@ const update = (
   id_session: number,
   newAttributes: ISession
 ): Promise<boolean> => {
+  let sql = 'UPDATE sessions SET ';
+  const sqlValues: Array<string | number | boolean> = [];
+  let oneValue = false;
+
+  if (newAttributes.name) {
+    sql += 'name = ? ';
+    sqlValues.push(newAttributes.name);
+    oneValue = true;
+  }
+  if (newAttributes.spot_name) {
+    sql += oneValue ? ', spot_name = ? ' : ' spot_name = ? ';
+    sqlValues.push(newAttributes.spot_name);
+    oneValue = true;
+  }
+  if (newAttributes.date) {
+    sql += oneValue ? ', date = ? ' : ' date = ? ';
+    sqlValues.push(newAttributes.date);
+    oneValue = true;
+  }
+  if (newAttributes.address) {
+    sql += oneValue ? ', address = ? ' : ' address = ? ';
+    sqlValues.push(newAttributes.address);
+    oneValue = true;
+  }
+  if (newAttributes.nb_hiki_max) {
+    sql += oneValue ? ', nb_hiki_max = ? ' : ' nb_hiki_max = ? ';
+    sqlValues.push(newAttributes.nb_hiki_max);
+    oneValue = true;
+  }
+  if (newAttributes.carpool != undefined) {
+    sql += oneValue ? ', carpool = ? ' : ' carpool = ? ';
+    sqlValues.push(newAttributes.carpool);
+    oneValue = true;
+  }
+  sql += ' WHERE id_session = ?';
+  sqlValues.push(id_session);
+
+  // console.log(sql);
+  // console.log(sqlValues);
   return connection
     .promise()
-    .query<ResultSetHeader>('UPDATE sessions SET ? WHERE id_session = ?', [
-      newAttributes,
-      id_session,
-    ])
+    .query<ResultSetHeader>(sql, sqlValues)
     .then(([results]) => results.affectedRows === 1);
 };
 
 const sessionExists = (req: Request, res: Response, next: NextFunction) => {
   // Récupèrer l'id user de req.params
   const { idSession } = req.params;
-  console.log(idSession);
   // Vérifier si le user existe
   findOne(Number(idSession))
     .then((sessionExists) => {
@@ -144,6 +188,9 @@ const validateSession = (req: Request, res: Response, next: NextFunction) => {
     id_surf_style: Joi.number().integer().presence(required),
     carpool: Joi.number().integer().presence(required),
     id_user: Joi.number().integer().presence(required),
+    nice_time: Joi.string().optional(),
+    nice_date: Joi.string().optional(),
+    id: Joi.number().integer().optional(),
   }).validate(req.body, { abortEarly: false }).error;
   if (errors) {
     next(new ErrorHandler(422, errors.message));
@@ -192,7 +239,6 @@ const findSessionsByIdUser = (idUser: number) => {
       [idUser]
     )
     .then(([results]) => {
-      console.log(results);
       return results;
     });
 };

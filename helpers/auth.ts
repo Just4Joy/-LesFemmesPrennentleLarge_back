@@ -17,7 +17,7 @@ interface ICookie {
 
 const getCurrentSession = (req: Request, res: Response, next: NextFunction) => {
   const myCookie = req.cookies as ICookie;
-
+  console.log(myCookie);
   if (!myCookie.user_token && !req.headers.authorization) {
     next(new ErrorHandler(401, 'Unauthorized user, please login'));
   } else {
@@ -27,7 +27,7 @@ const getCurrentSession = (req: Request, res: Response, next: NextFunction) => {
       token,
       process.env.PRIVATE_KEY as string
     ) as IUserInfo;
-    console.log(token);
+
     if (req.userInfo === undefined) {
       next(new ErrorHandler(401, 'Unauthorized user, please login'));
     } else {

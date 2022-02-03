@@ -23,9 +23,11 @@ const verifyPassword = (password: string, hashedPassword: string) => {
 
 const validateUser = (req: Request, res: Response, next: NextFunction) => {
   let required: Joi.PresenceMode = 'optional';
+
   if (req.method === 'POST') {
     required = 'required';
   }
+
   const errors = Joi.object({
     firstname: Joi.string().max(100).presence(required),
     lastname: Joi.string().max(100).presence(required),
@@ -42,6 +44,9 @@ const validateUser = (req: Request, res: Response, next: NextFunction) => {
     wahine: Joi.boolean().truthy(1).falsy(0).presence(required),
     desc: Joi.string().max(255).optional(),
     phone: Joi.string().max(10).presence(required),
+    id: Joi.number().optional(),
+    id_user: Joi.number().optional(),
+    admin: Joi.number().optional(),
   }).validate(req.body, { abortEarly: false }).error;
   if (errors) {
     console.log(errors.message);
@@ -64,9 +69,7 @@ const validateLogin = (req: Request, res: Response, next: NextFunction) => {
 };
 
 const findMany = (sortBy: string = ''): Promise<IUser[]> => {
-  console.log(sortBy);
-  let sql: string =
-    'SELECT id_user, firstname, lastname, email, wahine,  admin, id_user AS id from users';
+  let sql: string = 'SELECT *, id_user AS id from users';
   if (sortBy) {
     sql += ` ORDER BY ${sortBy}`;
   }
@@ -83,12 +86,15 @@ const findByEmail = (email: string): Promise<IUser> => {
     .then(([results]) => results[0]);
 };
 
-const findOneById = (id: number): Promise<IUser> => {
+const findOneById = (id: number, display?: string): Promise<IUser> => {
+  let sql: string =
+    'SELECT id_user, firstname, lastname, email, wahine, admin, id_user AS id from users WHERE id_user = ?';
+  if (display === 'all') {
+    sql = 'SELECT * from users WHERE id_user = ?';
+  }
   return connection
     .promise()
-    .query<IUser[]>('SELECT *, id_user AS id FROM users WHERE id_user = ?', [
-      id,
-    ])
+    .query<IUser[]>(sql, [id])
     .then(([results]) => results[0]);
 };
 
@@ -96,7 +102,7 @@ const update = (data: any, id: number) => {
   let sql = 'UPDATE users SET ';
   const sqlValues: Array<string | number | boolean> = [];
   let oneValue = false;
-  console.log(data);
+
   if (data.firstname) {
     sql += 'firstname = ? ';
     sqlValues.push(data.firstname);

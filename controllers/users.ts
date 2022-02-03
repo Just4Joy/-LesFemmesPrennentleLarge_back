@@ -8,6 +8,7 @@ import ISurfSkill from '../interfaces/ISurfskills';
 import ISession from '../interfaces/ISession';
 import Session from '../models/session';
 import { formatSortString } from '../helpers/functions';
+import { ErrorHandler } from '../helpers/errors';
 
 const userController = express.Router();
 
@@ -16,9 +17,8 @@ userController.get('/', (async (
   res: Response,
   next: NextFunction
 ) => {
-  console.log(req.query);
   const sortBy: string = req.query.sort as string;
-  console.log(sortBy);
+
   try {
     const result: IUser[] = await User.findMany(formatSortString(sortBy));
     res.setHeader(
@@ -37,8 +37,10 @@ userController.get('/:id', (async (
   next: NextFunction
 ) => {
   const { id } = req.params as IUser;
+  const display = req.query.display as string;
+
   try {
-    const result: IUser = await User.findOneById(id);
+    const result: IUser = await User.findOneById(id, display);
 
     res.status(200).json(result);
   } catch (err) {
@@ -66,17 +68,17 @@ userController.put(
   Auth.checkSessionPrivileges,
   User.validateUser,
   (async (req: Request<any>, res: Response) => {
-    console.log(req);
     try {
       const { idUser } = req.params;
-      console.log(idUser);
       const foundUser: IUser = await User.findOneById(parseInt(idUser, 10));
 
       if (foundUser) {
         const UpdatedUser = await User.update(req.body, parseInt(idUser, 10));
 
         if (UpdatedUser) {
-          res.status(200).send(req.record); // react-admin needs this response
+          res.status(200).json({ id: idUser, ...req.body }); // react-admin needs this response
+        } else {
+          throw new ErrorHandler(500, `User cannot be updated`);
         }
       }
       return res.status(404).send('USER NOT FOUND');
@@ -151,28 +153,35 @@ userController.delete('/:id_user/surfskills/:id_surf_skill', (async (
 ) => {
   const { id_user, id_surf_skill } = req.params;
   try {
-    const created = await SurfSkills.destroy(
-      parseInt(id_user, 10),
-      parseInt(id_surf_skill)
-    );
+    // const created: ISurfSkill = await SurfSkills.destroyAll(
+    //   parseInt(id_user, 10),
+    //   parseInt(id_surf_skill)
+    // );
     res.status(204).json('RESSOURCE DELETED');
   } catch (err) {
     res.status(500).json(err);
   }
 }) as RequestHandler);
 
-userController.delete('/:idUser', Auth.getCurrentSession, (async (
-  req: Request,
-  res: Response
-) => {
-  try {
-    const { idUser } = req.params;
-    const deletedUser = await User.destroy(parseInt(idUser, 10));
-
-    return res.status(201).send('USER DELETED');
-  } catch (err) {
-    console.log(err);
-  }
-}) as RequestHandler);
+userController.delete(
+  '/:idUser',
+  Auth.getCurrentSession,
+  Auth.checkSessionPrivileges,
+  (async (req: Request, res: Response) => {
+    try {
+      const { idUser } = req.params;
+      const foundUser: IUser = await User.findOneById(parseInt(idUser, 10));
+      if (foundUser) {
+        const deletedUser = await User.destroy(parseInt(idUser, 10));
+        if (deletedUser) {
+          res.status(200).send(foundUser);
+        }
+      }
+      return res.status(201).send('USER DELETED');
+    } catch (err) {
+      console.log(err);
+    }
+  }) as RequestHandler
+);
 
 export default userController;

@@ -6,6 +6,8 @@ import ISession from '../interfaces/ISession';
 import { ErrorHandler } from '../helpers/errors';
 import IUser from '../interfaces/IUser';
 import Weather from '../models/weather';
+import { formatSortString } from '../helpers/functions';
+import * as Auth from '../helpers/auth';
 import { number } from 'joi';
 
 const sessionsController = express.Router();
@@ -21,6 +23,7 @@ sessionsController.get(
       const date = req.query.date as string;
       const pages = req.query.pages as string;
       const wahine = req.query.wahine as string;
+      const sortBy: string = req.query.sort as string;
 
       try {
         const sessions: ISession[] = await Session.findSession(
@@ -28,7 +31,12 @@ sessionsController.get(
           Number(limit),
           date,
           Number(pages),
-          Number(wahine)
+          Number(wahine),
+          formatSortString(sortBy)
+        );
+        res.setHeader(
+          'Content-Range',
+          `users : 0-${sessions.length}/${sessions.length + 1}`
         );
         return res.status(200).json(sessions);
       } catch (err) {
@@ -43,8 +51,10 @@ sessionsController.get(
   (req: Request, res: Response, next: NextFunction) => {
     (async () => {
       const { id } = req.params as ISession;
+      const { display } = req.query as ISession;
       try {
-        const session: ISession = await Session.findOne(id);
+        const session: ISession = await Session.findOne(id, display);
+
         return res.status(200).json(session);
       } catch (err) {
         next(err);
@@ -73,14 +83,17 @@ sessionsController.post(
 
 sessionsController.put(
   '/:idSession',
-  Session.sessionExists,
+  Auth.getCurrentSession,
+  Auth.checkSessionPrivileges,
   Session.validateSession,
+  Session.sessionExists,
   (req: Request, res: Response, next: NextFunction) => {
     const session = req.body as ISession;
-    Session.update(parseInt(req.params.idSession, 10), session)
+    const { idSession } = req.params as ISession;
+    Session.update(parseInt(idSession, 10), session)
       .then((sessionUpdated) => {
         if (sessionUpdated) {
-          res.status(200).send('Session updated');
+          res.status(200).json({ id: idSession, ...req.body }); // react-admin needs this response
         } else {
           throw new ErrorHandler(500, `Session cannot be updated`);
         }
@@ -148,9 +161,10 @@ sessionsController.get(
   '/:id_session/users',
   (req: Request, res: Response, next: NextFunction) => {
     (async () => {
+      const { display } = req.query as ISession;
+      const { id_session } = req.params as ISession;
       try {
-        const { id_session } = req.params as ISession;
-        const session: ISession = await Session.findOne(id_session);
+        const session: ISession = await Session.findOne(id_session, display);
         if (session) {
           const users: any = await User.allUserBySession(id_session);
           return res.status(200).json(users);
@@ -208,19 +222,24 @@ sessionsController.delete('/:id_session/weather/:id_weather', (async (
   }
 }) as RequestHandler);
 
-sessionsController.delete('/:idSession', Session.sessionExists, (async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
+sessionsController.delete(
+  '/:idSession',
+  Auth.getCurrentSession,
+  Auth.checkSessionPrivileges,
+  (async (req: Request, res: Response, next: NextFunction) => {
     const { idSession } = req.params as ISession;
-    const deletedSession = await Session.destroy(parseInt(idSession, 10));
-
-    return res.status(201).send('SESSION DELETED');
-  } catch (err) {
-    next(err);
-  }
-}) as RequestHandler);
+    try {
+      const sessionFound: ISession = await Session.findOne(idSession);
+      if (sessionFound) {
+        const deletedSession = await Session.destroy(parseInt(idSession, 10));
+        if (deletedSession) {
+          return res.status(200).send(sessionFound);
+        }
+      }
+    } catch (err) {
+      next(err);
+    }
+  }) as RequestHandler
+);
 
 export default sessionsController;
