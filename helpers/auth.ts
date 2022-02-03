@@ -17,12 +17,12 @@ interface ICookie {
 
 const getCurrentSession = (req: Request, res: Response, next: NextFunction) => {
   const myCookie = req.cookies as ICookie;
-  console.log(myCookie);
   if (!myCookie.user_token && !req.headers.authorization) {
     next(new ErrorHandler(401, 'Unauthorized user, please login'));
   } else {
     const token: string =
       myCookie.user_token || req.headers.authorization || '';
+
     req.userInfo = jwt.verify(
       token,
       process.env.PRIVATE_KEY as string
@@ -41,8 +41,12 @@ const checkSessionPrivileges = (
   res: Response,
   next: NextFunction
 ) => {
-  if (req.userInfo === undefined || !req.userInfo.admin) {
-    next(new ErrorHandler(401, 'You must be admin to perform this action'));
+  if (!req.cookies) {
+    if (req.userInfo === undefined || !req.userInfo.admin) {
+      next(new ErrorHandler(401, 'You must be admin to perform this action'));
+    } else {
+      next();
+    }
   } else {
     next();
   }

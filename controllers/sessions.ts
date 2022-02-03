@@ -14,72 +14,68 @@ const sessionsController = express.Router();
 
 type Result = { id_user: number; id_session: number };
 
-sessionsController.get(
-  '/',
-  (req: Request, res: Response, next: NextFunction) => {
-    (async () => {
-      const region = req.query.region as string;
-      const limit = req.query.limit as string;
-      const date = req.query.date as string;
-      const pages = req.query.pages as string;
-      const wahine = req.query.wahine as string;
-      const sortBy: string = req.query.sort as string;
+sessionsController.get('/', (async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const region = req.query.region as string;
+  const limit = req.query.limit as string;
+  const date = req.query.date as string;
+  const pages = req.query.pages as string;
+  const wahine = req.query.wahine as string;
+  const sortBy: string = req.query.sort as string;
 
-      try {
-        const sessions: ISession[] = await Session.findSession(
-          Number(region),
-          Number(limit),
-          date,
-          Number(pages),
-          Number(wahine),
-          formatSortString(sortBy)
-        );
-        res.setHeader(
-          'Content-Range',
-          `users : 0-${sessions.length}/${sessions.length + 1}`
-        );
-        return res.status(200).json(sessions);
-      } catch (err) {
-        next(err);
-      }
-    })();
+  try {
+    const sessions: ISession[] = await Session.findSession(
+      Number(region),
+      Number(limit),
+      date,
+      Number(pages),
+      Number(wahine),
+      formatSortString(sortBy)
+    );
+    res.setHeader(
+      'Content-Range',
+      `users : 0-${sessions.length}/${sessions.length + 1}`
+    );
+    return res.status(200).json(sessions);
+  } catch (err) {
+    next(err);
   }
-);
+}) as RequestHandler);
 
-sessionsController.get(
-  '/:id',
-  (req: Request, res: Response, next: NextFunction) => {
-    (async () => {
-      const { id } = req.params as ISession;
-      const { display } = req.query as ISession;
-      try {
-        const session: ISession = await Session.findOne(id, display);
+sessionsController.get('/:id', (async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { id } = req.params as ISession;
+  const { display } = req.query as ISession;
+  try {
+    const session: ISession = await Session.findOne(id, display);
 
-        return res.status(200).json(session);
-      } catch (err) {
-        next(err);
-      }
-    })();
+    return res.status(200).json(session);
+  } catch (err) {
+    next(err);
   }
-);
+}) as RequestHandler);
 
-sessionsController.post(
-  '/',
-  Session.validateSession,
-  (req: Request, res: Response, next: NextFunction) => {
-    (async () => {
-      try {
-        const session = req.body as ISession;
+sessionsController.post('/', Session.validateSession, (async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const session = req.body as ISession;
 
-        const insertId: number = await Session.create(session);
+    const insertId: number = await Session.create(session);
 
-        return res.status(200).json({ id_session: insertId, ...req.body });
-      } catch (err) {
-        next(err);
-      }
-    })();
+    return res.status(200).json({ id_session: insertId, ...req.body });
+  } catch (err) {
+    next(err);
   }
-);
+}) as RequestHandler);
 
 sessionsController.put(
   '/:idSession',
@@ -102,31 +98,31 @@ sessionsController.put(
   }
 );
 
-sessionsController.post(
-  '/:id_session/users/:id_user',
-  (req: Request, res: Response, next: NextFunction) => {
-    (async () => {
-      try {
-        const { id_session } = req.params as ISession;
-        const { id_user } = req.params as IUser;
-        const result: any = await Session.checkIfUserHasSubscribe(
-          id_user,
-          id_session
-        );
-        if (!result[0]) {
-          const subscription: any = await User.subscribe(id_user, id_session);
-          if (subscription.affectedRows === 1) {
-            const users: any = await User.allUserBySession(id_session);
-            return res.status(200).json(users);
-          }
-          return res.status(201).json('SUBSCRIPTION ADDED');
-        } else return res.status(422).json('USER ALREADY SUBSCRIBE');
-      } catch (err) {
-        next(err);
+sessionsController.post('/:id_session/users/:id_user', (async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id_session } = req.params as ISession;
+    const { id_user } = req.params as IUser;
+    const result: any = await Session.checkIfUserHasSubscribe(
+      id_user,
+      id_session
+    );
+
+    if (!result[0]) {
+      const subscription: any = await User.subscribe(id_user, id_session);
+      if (subscription.affectedRows === 1) {
+        const users: any = await User.allUserBySession(id_session);
+        return res.status(200).json(users);
       }
-    })();
+      return res.status(201).json('SUBSCRIPTION ADDED');
+    } else return res.status(422).json('USER ALREADY SUBSCRIBE');
+  } catch (err) {
+    next(err);
   }
-);
+}) as RequestHandler);
 
 sessionsController.delete(
   '/:id_session/users/:id_user',

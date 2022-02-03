@@ -14,7 +14,7 @@ const findSession = (
   sortBy: string = ''
 ): Promise<ISession[]> => {
   let sql =
-    'SELECT id_session AS id, sessions.name, DATE_FORMAT(date, "%Y/%m/%d %H:%i:%s") AS date, spot_name, address, nb_hiki_max, sessions.id_department, id_surf_style, carpool, id_user, DATE_FORMAT(date, "%d/%m/%Y") AS nice_date, DATE_FORMAT(date, "%kh%i") AS nice_time FROM sessions';
+    'SELECT id_session AS id, id_session, sessions.name, DATE_FORMAT(date, "%Y/%m/%d %H:%i:%s") AS date, spot_name, address, nb_hiki_max, sessions.id_department, id_surf_style, carpool, id_user, DATE_FORMAT(date, "%d/%m/%Y") AS nice_date, DATE_FORMAT(date, "%kh%i") AS nice_time FROM sessions';
   const sqlValue: Array<string | number> = [];
 
   if (wahine) {
@@ -26,33 +26,30 @@ const findSession = (
       ' INNER JOIN departments ON sessions.id_department=departments.id_department INNER JOIN regions ON departments.id_region=regions.id_region WHERE departments.id_region = ?';
     sqlValue.push(region);
     if (date) {
-      sql += ' AND date = ?';
+      sql += ' AND DATE_FORMAT(date, "%Y-%m-%d") = ?';
       sqlValue.push(date);
     }
   }
   if (date && !region) {
-    sql += ' WHERE date = ?';
+    sql += ' WHERE DATE_FORMAT(date, "%Y-%m-%d") = ?';
     sqlValue.push(date);
   }
 
   if (limit === 3) {
-    sql += ' ORDER BY id_session DESC LIMIT ?';
+    sql += ' ORDER BY date DESC LIMIT ?';
     sqlValue.push(3);
   } else {
     if (pages === 0) {
-      sql += ' ORDER BY id_session DESC LIMIT ?';
-      sqlValue.push(10);
+      sql += ' ORDER BY date DESC LIMIT ?';
+      sqlValue.push(9);
     } else if (pages > 0) {
-      sql += ' ORDER BY id_session DESC LIMIT ? OFFSET ?';
-      sqlValue.push(10, pages);
+      sql += ' ORDER BY date DESC LIMIT ? OFFSET ?';
+      sqlValue.push(9, pages);
     }
   }
   if (sortBy) {
     sql += ` ORDER BY ${sortBy}`;
   }
-
-  // console.log(sql);
-  // console.log(sqlValue);
 
   return connection
     .promise()
@@ -99,7 +96,7 @@ const findOne = (id_session: number, display?: string) => {
     sql =
       'SELECT *, DATE_FORMAT(date, "%d/%m/%Y") AS nice_date, DATE_FORMAT(date, "%kh%i") AS nice_time FROM sessions WHERE id_session = ?';
   }
-  console.log(id_session);
+
   return connection
     .promise()
     .query<ISession[]>(sql, [id_session])
@@ -147,8 +144,6 @@ const update = (
   sql += ' WHERE id_session = ?';
   sqlValues.push(id_session);
 
-  // console.log(sql);
-  // console.log(sqlValues);
   return connection
     .promise()
     .query<ResultSetHeader>(sql, sqlValues)

@@ -42,14 +42,13 @@ const validateUser = (req: Request, res: Response, next: NextFunction) => {
     id_department: Joi.number().optional(),
     id_surf_style: Joi.number().optional(),
     wahine: Joi.boolean().truthy(1).falsy(0).presence(required),
-    desc: Joi.string().max(255).optional(),
+    description: Joi.string().max(255).optional(),
     phone: Joi.string().max(10).presence(required),
     id: Joi.number().optional(),
     id_user: Joi.number().optional(),
     admin: Joi.number().optional(),
   }).validate(req.body, { abortEarly: false }).error;
   if (errors) {
-    console.log(errors.message);
     next(new ErrorHandler(422, errors.message));
   } else {
     next();
@@ -89,9 +88,11 @@ const findByEmail = (email: string): Promise<IUser> => {
 const findOneById = (id: number, display?: string): Promise<IUser> => {
   let sql: string =
     'SELECT id_user, firstname, lastname, email, wahine, admin, id_user AS id from users WHERE id_user = ?';
+
   if (display === 'all') {
     sql = 'SELECT * from users WHERE id_user = ?';
   }
+
   return connection
     .promise()
     .query<IUser[]>(sql, [id])
@@ -104,32 +105,63 @@ const update = (data: any, id: number) => {
   let oneValue = false;
 
   if (data.firstname) {
-    sql += 'firstname = ? ';
+    sql += 'firstname = ?';
     sqlValues.push(data.firstname);
     oneValue = true;
   }
   if (data.lastname) {
-    sql += oneValue ? ', lastname = ? ' : ' lastname = ? ';
+    sql += oneValue ? ', lastname = ?' : 'lastname = ?';
     sqlValues.push(data.lastname);
     oneValue = true;
   }
+  if (data.city) {
+    sql += oneValue ? ', city = ?' : 'city = ?';
+    sqlValues.push(data.city);
+    oneValue = true;
+  }
+  if (data.description) {
+    sql += oneValue ? ', description = ?' : 'description = ?';
+    sqlValues.push(data.description);
+    oneValue = true;
+  }
+  if (data.favorite_spot) {
+    sql += oneValue ? ', favorite_spot = ?' : 'favorite_spot = ?';
+    sqlValues.push(data.favorite_spot);
+    oneValue = true;
+  }
+  if (data.id_department) {
+    sql += oneValue ? ', id_department = ?' : 'id_department = ?';
+    sqlValues.push(data.id_department);
+    oneValue = true;
+  }
+  if (data.id_surf_style) {
+    sql += oneValue ? ', id_surf_style = ?' : 'id_surf_style = ?';
+    sqlValues.push(data.id_surf_style);
+    oneValue = true;
+  }
+  if (data.profile_pic) {
+    sql += oneValue ? ', profile_pic = ?' : 'profile_pic = ?';
+    sqlValues.push(data.profile_pic);
+    oneValue = true;
+  }
   if (data.email) {
-    sql += oneValue ? ', email = ? ' : ' email = ? ';
+    sql += oneValue ? ', email = ?' : 'email = ?';
     sqlValues.push(data.email);
     oneValue = true;
   }
   if (data.wahine != undefined) {
-    sql += oneValue ? ', wahine = ? ' : ' wahine = ? ';
+    sql += oneValue ? ', wahine = ?' : 'wahine = ?';
     sqlValues.push(data.wahine);
     oneValue = true;
   }
   if (data.admin != undefined) {
-    sql += oneValue ? ', admin = ? ' : ' admin = ? ';
+    sql += oneValue ? ', admin = ?' : 'admin = ?';
     sqlValues.push(data.admin);
     oneValue = true;
   }
   sql += ' WHERE id_user = ?';
   sqlValues.push(id);
+
   return connection
     .promise()
     .query<ResultSetHeader>(sql, sqlValues)
@@ -147,15 +179,22 @@ const create = async (payload: IUser) => {
     .toISOString()
     .slice(0, 19)
     .replace('T', ' ');
-  const { firstname, lastname, email, password, created_date, wahine, phone } =
-    payload;
+  const { firstname, lastname, email, password, wahine, phone } = payload;
   const hashedPassword = await hashPassword(password);
 
   return connection
     .promise()
     .query<ResultSetHeader>(
       'INSERT INTO users (firstname, lastname, email, password, created_date, wahine, phone) VALUES (?,?,?,?,?,?,?)',
-      [firstname, lastname, email, hashedPassword, created_date, wahine, phone]
+      [
+        firstname,
+        lastname,
+        email,
+        hashedPassword,
+        createdDateServ,
+        wahine,
+        phone,
+      ]
     );
 };
 
