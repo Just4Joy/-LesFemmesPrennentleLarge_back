@@ -49,6 +49,7 @@ const validateUser = (req: Request, res: Response, next: NextFunction) => {
     admin: Joi.number().optional(),
   }).validate(req.body, { abortEarly: false }).error;
   if (errors) {
+    console.log(errors);
     next(new ErrorHandler(422, errors.message));
   } else {
     next();
