@@ -17,4 +17,5 @@ export default interface IUser extends RowDataPacket {
   wahine: number;
   desc: string;
   phone: number;
+  admin: number;
 }
