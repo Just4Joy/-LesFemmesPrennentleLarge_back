@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, RequestHandler } from 'express';
 import express from 'express';
 import SurfStyle from '../models/surfstyle';
 import ISurfStyle from '../interfaces/ISurfStyle';
@@ -21,20 +21,19 @@ surfStyleController.get(
   }
 );
 
-surfStyleController.get(
-  '/:id_surf_style',
-  async (req: Request, res: Response, next: NextFunction) => {
-    const { id_surf_style } = req.params as ISurfStyle;
-    try {
-      const result: ISurfStyle = await SurfStyle.findSurfStyleById(
-        id_surf_style
-      );
+surfStyleController.get('/:id_surf_style', (async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { id_surf_style } = req.params as ISurfStyle;
+  try {
+    const result: ISurfStyle = await SurfStyle.findSurfStyleById(id_surf_style);
 
-      res.status(200).json(result);
-    } catch (err) {
-      next(err);
-    }
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
   }
-);
+}) as RequestHandler);
 
 export default surfStyleController;
