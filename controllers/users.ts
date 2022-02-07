@@ -66,9 +66,10 @@ userController.put(
   Auth.getCurrentSession,
   Auth.checkSessionPrivileges,
   User.validateUser,
-  (async (req: Request, res: Response) => {
+  (async (req: Omit<Request, 'body'> & { body: IUser }, res: Response) => {
     try {
       const { id_user } = req.params as IUser;
+
       const foundUser: IUser = await User.findOneById(id_user);
 
       if (foundUser) {
@@ -152,7 +153,7 @@ userController.delete('/:id_user/surfskills/', (async (
   const { id_user } = req.params;
   try {
     const destroyed = await SurfSkills.destroyAll(parseInt(id_user));
-    res.status(204).json('RESSOURCE DELETED');
+    destroyed ? res.status(204).json('RESSOURCE DELETED') : null;
   } catch (err) {
     res.status(500).json(err);
   }

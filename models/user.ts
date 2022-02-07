@@ -49,7 +49,7 @@ const validateUser = (req: Request, res: Response, next: NextFunction) => {
     admin: Joi.number().optional(),
   }).validate(req.body, { abortEarly: false }).error;
   if (errors) {
-    console.log(errors);
+    console.log(errors, 'VALIDATION');
     next(new ErrorHandler(422, errors.message));
   } else {
     next();
@@ -68,8 +68,8 @@ const validateLogin = (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const findMany = (sortBy: string = ''): Promise<IUser[]> => {
-  let sql: string = 'SELECT *, id_user AS id from users';
+const findMany = (sortBy = ''): Promise<IUser[]> => {
+  let sql = 'SELECT *, id_user AS id from users';
   if (sortBy) {
     sql += ` ORDER BY ${sortBy}`;
   }
@@ -87,7 +87,7 @@ const findByEmail = (email: string): Promise<IUser> => {
 };
 
 const findOneById = (id: number, display?: string): Promise<IUser> => {
-  let sql: string =
+  let sql =
     'SELECT id_user, firstname, lastname, email, wahine, admin, id_user AS id from users WHERE id_user = ?';
 
   if (display === 'all') {
@@ -100,7 +100,7 @@ const findOneById = (id: number, display?: string): Promise<IUser> => {
     .then(([results]) => results[0]);
 };
 
-const update = (data: any, id: number) => {
+const update = (data: IUser, id: number) => {
   let sql = 'UPDATE users SET ';
   const sqlValues: Array<string | number | boolean> = [];
   let oneValue = false;
