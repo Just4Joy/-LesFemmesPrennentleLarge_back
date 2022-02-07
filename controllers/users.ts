@@ -12,63 +12,62 @@ import { ErrorHandler } from '../helpers/errors';
 
 const userController = express.Router();
 
-userController.get('/', (async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const sortBy: string = req.query.sort as string;
+userController.get(
+  '/',
+  async (req: Request, res: Response, next: NextFunction) => {
+    const sortBy: string = req.query.sort as string;
 
-  try {
-    const result: IUser[] = await User.findAll(formatSortString(sortBy));
-    res.setHeader(
-      'Content-Range',
-      `users : 0-${result.length}/${result.length + 1}`
-    );
-    res.status(200).json(result);
-  } catch (err) {
-    next(err);
+    try {
+      const result: IUser[] = await User.findAll(formatSortString(sortBy));
+      res.setHeader(
+        'Content-Range',
+        `users : 0-${result.length}/${result.length + 1}`
+      );
+      res.status(200).json(result);
+    } catch (err) {
+      next(err);
+    }
   }
-}) as RequestHandler);
+);
 
-userController.get('/:idUser', (async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const { idUser } = req.params as IUser;
-  const display = req.query.display as string;
-  try {
-    const user: IUser = await User.findOneById(idUser, display);
+userController.get(
+  '/:idUser',
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { idUser } = req.params as IUser;
+    const display = req.query.display as string;
+    try {
+      const user: IUser = await User.findOneById(idUser, display);
 
-    res.status(200).json(user);
-  } catch (err) {
-    next(err);
+      res.status(200).json(user);
+    } catch (err) {
+      next(err);
+    }
   }
-}) as RequestHandler);
+);
 
-userController.post('/', User.validateUser, (async (
-  req: Request,
-  res: Response
-) => {
-  const { email } = req.body as IUser;
-  const existingEmail: IUser = await User.findByEmail(email);
-  if (existingEmail) {
-    return res.status(400).json('BAD REQUEST: EMAIL ALREADY EXIST');
+userController.post(
+  '/',
+  User.validateUser,
+  async (req: Request, res: Response) => {
+    const { email } = req.body as IUser;
+    const existingEmail: IUser = await User.findByEmail(email);
+    if (existingEmail) {
+      return res.status(400).json('BAD REQUEST: EMAIL ALREADY EXIST');
+    }
+    const user = req.body as IUser;
+    const userCreated = await User.create(user);
+    return res
+      .status(200)
+      .json({ id_user: userCreated[0].insertId, ...req.body });
   }
-  const user = req.body as IUser;
-  const userCreated = await User.create(user);
-  return res
-    .status(200)
-    .json({ id_user: userCreated[0].insertId, ...req.body });
-}) as RequestHandler);
+);
 
 userController.put(
   '/:idUser',
   Auth.getCurrentSession,
   Auth.checkSessionPrivileges,
   User.validateUser,
-  (async (req: Omit<Request, 'body'> & { body: IUser }, res: Response) => {
+  async (req: Omit<Request, 'body'> & { body: IUser }, res: Response) => {
     try {
       const { idUser } = req.params as IUser;
       const foundUser: IUser = await User.findOneById(idUser);
@@ -85,37 +84,34 @@ userController.put(
     } catch (err) {
       return res.status(404).json(err);
     }
-  }) as RequestHandler
+  }
 );
 
-userController.get('/:idUser/surfskills', (async (
-  req: Request,
-  res: Response
-) => {
-  try {
-    const { idUser } = req.params;
-    const display = req.query.display as string;
-    const foundUser: IUser = await User.findOneById(
-      parseInt(idUser, 10),
-      display
-    );
-
-    if (foundUser) {
-      const surfskills: ISurfSkill[] = await SurfSkills.findOneByUser(
-        parseInt(idUser, 10)
+userController.get(
+  '/:idUser/surfskills',
+  async (req: Request, res: Response) => {
+    try {
+      const { idUser } = req.params;
+      const display = req.query.display as string;
+      const foundUser: IUser = await User.findOneById(
+        parseInt(idUser, 10),
+        display
       );
-      if (surfskills) return res.status(200).json(surfskills);
-      else return res.status(404).send('RESSOURCE NOT FOUND');
-    }
-  } catch (err) {
-    console.log(err);
-  }
-}) as RequestHandler);
 
-userController.get('/:idUser/sessions', (async (
-  req: Request,
-  res: Response
-) => {
+      if (foundUser) {
+        const surfskills: ISurfSkill[] = await SurfSkills.findOneByUser(
+          parseInt(idUser, 10)
+        );
+        if (surfskills) return res.status(200).json(surfskills);
+        else return res.status(404).send('RESSOURCE NOT FOUND');
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+);
+
+userController.get('/:idUser/sessions', async (req: Request, res: Response) => {
   try {
     const { idUser } = req.params;
 
@@ -131,40 +127,40 @@ userController.get('/:idUser/sessions', (async (
   } catch (err) {
     console.log(err);
   }
-}) as RequestHandler);
+});
 
-userController.post('/:idUser/surfskills/', (async (
-  req: Request,
-  res: Response
-) => {
-  const { idUser } = req.params as IUser;
-  const { idSurfSkill } = req.body as ISurfSkill;
-  try {
-    const created = await SurfSkills.create(idUser, idSurfSkill);
-    res.status(201).json(created);
-  } catch (err) {
-    res.status(500).json(err);
+userController.post(
+  '/:idUser/surfskills/',
+  async (req: Request, res: Response) => {
+    const { idUser } = req.params as IUser;
+    const { idSurfSkill } = req.body as ISurfSkill;
+    try {
+      const created = await SurfSkills.create(idUser, idSurfSkill);
+      res.status(201).json(created);
+    } catch (err) {
+      res.status(500).json(err);
+    }
   }
-}) as RequestHandler);
+);
 
-userController.delete('/:idUser/surfskills/', (async (
-  req: Request,
-  res: Response
-) => {
-  const { idUser } = req.params;
-  try {
-    const destroyed = await SurfSkills.destroyAll(parseInt(idUser));
-    res.status(204).json('RESSOURCE DELETED');
-  } catch (err) {
-    res.status(500).json(err);
+userController.delete(
+  '/:idUser/surfskills/',
+  async (req: Request, res: Response) => {
+    const { idUser } = req.params;
+    try {
+      const destroyed = await SurfSkills.destroyAll(parseInt(idUser));
+      res.status(204).json('RESSOURCE DELETED');
+    } catch (err) {
+      res.status(500).json(err);
+    }
   }
-}) as RequestHandler);
+);
 
 userController.delete(
   '/:idUser',
   Auth.getCurrentSession,
   Auth.checkSessionPrivileges,
-  (async (req: Request, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const { idUser } = req.params;
       const foundUser: IUser = await User.findOneById(parseInt(idUser, 10));
@@ -178,7 +174,7 @@ userController.delete(
     } catch (err) {
       console.log(err);
     }
-  }) as RequestHandler
+  }
 );
 
 export default userController;
