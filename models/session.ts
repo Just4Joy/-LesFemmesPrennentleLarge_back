@@ -5,7 +5,7 @@ import { ResultSetHeader } from 'mysql2';
 import { ErrorHandler } from '../helpers/errors';
 import { Request, Response, NextFunction } from 'express';
 
-const findSession = (
+const findAll = (
   region: number,
   limit: number,
   date: string,
@@ -54,7 +54,7 @@ const findSession = (
   return connection
     .promise()
     .query<ISession[]>(sql, sqlValue)
-    .then(([results]) => results);
+    .then(([sessions]) => sessions);
 };
 
 const create = (session: ISession): Promise<number> => {
@@ -85,11 +85,11 @@ const create = (session: ISession): Promise<number> => {
         id_user,
       ]
     )
-    .then(([results]) => results.insertId);
+    .then(([session]) => session.insertId);
 };
 
-const findOne = (id_session: number, display?: string) => {
-  let sql =
+const findOne = (idSession: number, display?: string) => {
+  let sql: string =
     'SELECT id_session AS id, sessions.name, DATE_FORMAT(date, "%Y/%m/%d %H:%i:%s") AS date, spot_name, address, nb_hiki_max, sessions.id_department, id_surf_style, carpool, id_user, DATE_FORMAT(date, "%d/%m/%Y") AS nice_date, DATE_FORMAT(date, "%kh%i") AS nice_time FROM sessions WHERE id_session = ?';
 
   if (display === 'all') {
@@ -99,8 +99,8 @@ const findOne = (id_session: number, display?: string) => {
 
   return connection
     .promise()
-    .query<ISession[]>(sql, [id_session])
-    .then(([results]) => results[0]);
+    .query<ISession[]>(sql, [idSession])
+    .then(([session]) => session[0]);
 };
 
 const update = (
@@ -108,7 +108,7 @@ const update = (
   newAttributes: ISession
 ): Promise<boolean> => {
   let sql = 'UPDATE sessions SET ';
-  const sqlValues: Array<string | number | boolean> = [];
+  const sqlValues: Array<string | number | boolean | Date> = [];
   let oneValue = false;
 
   if (newAttributes.name) {
@@ -147,20 +147,20 @@ const update = (
   return connection
     .promise()
     .query<ResultSetHeader>(sql, sqlValues)
-    .then(([results]) => results.affectedRows === 1);
+    .then(([session]) => session.affectedRows === 1);
 };
 
 const sessionExists = (req: Request, res: Response, next: NextFunction) => {
-  // Récupèrer l'id user de req.params
+  // Retrieves the idUser from req.params
   const { idSession } = req.params;
-  // Vérifier si le user existe
+  // Verifies if the user exists
   findOne(Number(idSession))
     .then((sessionExists) => {
-      // Si non, => erreur
+      // If false, => error
       if (!sessionExists) {
         next(new ErrorHandler(404, `This session doesn't exist`));
       }
-      // Si oui => next
+      // If true => next
       else {
         next();
       }
@@ -188,39 +188,29 @@ const validateSession = (req: Request, res: Response, next: NextFunction) => {
     id: Joi.number().integer().optional(),
   }).validate(req.body, { abortEarly: false }).error;
   if (errors) {
+    console.log(errors);
     next(new ErrorHandler(422, errors.message));
   } else {
     next();
   }
 };
 
-const checkIfUserHasSubscribe = (id_user: number, id_session: number) => {
+const checkIfUserHasSubscribe = (idUser: number, idSession: number) => {
   return connection
     .promise()
     .query<ResultSetHeader>(
       'SELECT * FROM users_has_sessions WHERE id_user = ? AND id_session = ?',
-      [id_user, id_session]
+      [idUser, idSession]
     )
-    .then(([result]) => result);
+    .then(([userHasSession]) => userHasSession.affectedRows === 1);
 };
 
 const destroy = (id: number) => {
   return connection
     .promise()
-    .query<ISession[]>('DELETE FROM sessions WHERE id_session = ?', [id]);
+    .query<ResultSetHeader>('DELETE FROM sessions WHERE id_session = ?', [id])
+    .then(([session]) => session.affectedRows > 0);
 };
-
-// const findSessionByUser = (id: number) => {
-//   return connection
-//     .promise()
-//     .query<ISession[]>(
-//       `SELECT s.* FROM sessions as s
-//   INNER JOIN users_has_sessions as us ON s.id_session = us.id_session
-//   WHERE us.id_user = ?`,
-//       [id]
-//     )
-//     .then(([results]) => results);
-// };
 
 const findSessionsByIdUser = (idUser: number) => {
   return connection
@@ -233,13 +223,13 @@ const findSessionsByIdUser = (idUser: number) => {
       AND us.id_user = ?`,
       [idUser]
     )
-    .then(([results]) => {
-      return results;
+    .then(([sessions]) => {
+      return sessions;
     });
 };
 
 export default {
-  findSession,
+  findAll,
   create,
   validateSession,
   findOne,
@@ -248,5 +238,4 @@ export default {
   checkIfUserHasSubscribe,
   destroy,
   findSessionsByIdUser,
-  // findSessionByUser,
 };

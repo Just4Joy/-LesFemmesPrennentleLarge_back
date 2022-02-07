@@ -3,43 +3,43 @@ import connection from '../helpers/db-config';
 
 const db = connection.promise();
 
-const findWeather = () => {
+const findAll = () => {
   const sql = `SELECT * FROM weather`;
-  return db.query<IWeather[]>(sql).then(([results]) => results);
+  return db.query<IWeather[]>(sql).then(([weather]) => weather);
 };
 
-const getWeatherBySession = (id_session: number) => {
+const findOneBySession = (idSession: number) => {
   return connection
     .promise()
     .query<IWeather[]>(
       'SELECT w.* FROM weather as w INNER JOIN sessions_has_weather as s ON w.id_weather = s.id_weather WHERE s.id_session = ?',
-      [id_session]
+      [idSession]
     )
-    .then(([result]) => result);
+    .then(([weather]) => weather);
 };
 
-const create = (id_session: number, id_weather: number) => {
+const create = (idSession: number, idWeather: number) => {
   return connection
     .promise()
     .query<IWeather[]>(
       'INSERT INTO sessions_has_weather (id_session, id_weather) VALUES (?,?)',
-      [id_session, id_weather]
+      [idSession, idWeather]
     )
-    .then(([result]) => result);
+    .then(([weatherOfSession]) => weatherOfSession);
 };
 
-const destroy = (id_user: number, id_weather: number) => {
+const destroy = (idSession: number, idWeather: number) => {
   return connection
     .promise()
     .query<IWeather[]>(
       'DELETE FROM sessions_has_weather WHERE id_session = ? AND id_weather = ?',
-      [id_user, id_weather]
+      [idSession, idWeather]
     );
 };
 
 const Weather = {
-  findWeather,
-  getWeatherBySession,
+  findAll,
+  findOneBySession,
   create,
   destroy,
 };

@@ -1,55 +1,55 @@
 import connection from '../helpers/db-config';
-import ISurfSkills from '../interfaces/ISurfskills';
+import ISurfSkills from '../interfaces/ISurfskill';
 
 const db = connection.promise();
 
-const findSurfSkills = () => {
+const findAll = () => {
   const sql = `SELECT * FROM surf_skills`;
-  return db.query<ISurfSkills[]>(sql).then(([results]) => results);
+  return db.query<ISurfSkills[]>(sql).then(([surfSkills]) => surfSkills);
 };
 
-const findSurfSkillsByUser = (id: number) => {
+const findOneByUser = (idUser: number) => {
   return db
     .query<ISurfSkills[]>(
       `SELECT s.* FROM surf_skills as s 
     INNER JOIN users_has_surf_skills as us ON s.id_surf_skill = us.id_surf_skill 
     WHERE us.id_user = ?`,
-      [id]
+      [idUser]
     )
-    .then(([results]) => results);
+    .then(([surfSkills]) => surfSkills);
 };
 
-const findSurfSkillsById = (id: number) => {
+const findOneById = (idSurfSkill: number) => {
   return db
     .query<ISurfSkills[]>(`SELECT * FROM surf_skills WHERE id_surf_skill = ?`, [
-      id,
+      idSurfSkill,
     ])
-    .then(([results]) => results[0]);
+    .then(([surfSkill]) => surfSkill[0]);
 };
 
-const create = (id_user: number, id_surf_skill: number) => {
+const create = (idUser: number, idSurfSkill: number) => {
   return connection
     .promise()
     .query<ISurfSkills[]>(
       'INSERT INTO users_has_surf_skills (id_user, id_surf_skill) VALUES (?,?)',
-      [id_user, id_surf_skill]
+      [idUser, idSurfSkill]
     )
-    .then(([result]) => result);
+    .then(([surfSkillByUser]) => surfSkillByUser);
 };
 
-const destroyAll = (id_user: number) => {
+const destroyAll = (idUser: number) => {
   return connection
     .promise()
     .query<ISurfSkills[]>(
       'DELETE FROM users_has_surf_skills WHERE id_user = ?',
-      [id_user]
+      [idUser]
     );
 };
 
 const SurfSkills = {
-  findSurfSkills,
-  findSurfSkillsById,
-  findSurfSkillsByUser,
+  findAll,
+  findOneById,
+  findOneByUser,
   create,
   destroyAll,
 };

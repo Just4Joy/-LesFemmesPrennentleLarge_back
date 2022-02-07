@@ -12,7 +12,7 @@ weatherController.get('/coucou', (req: Request, res: Response) => {
 weatherController.get(
   '/',
   (req: Request, res: Response, next: NextFunction) => {
-    Weather.findWeather()
+    Weather.findAll()
       .then((weather: IWeather[]) => {
         res.json(weather);
       })

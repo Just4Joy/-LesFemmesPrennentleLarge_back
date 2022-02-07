@@ -5,7 +5,7 @@ const findAll = () => {
   return connection
     .promise()
     .query<IRegion[]>('SELECT * FROM regions')
-    .then(([region]) => region);
+    .then(([regions]) => regions);
 };
 
 const findOneById = (idRegion: number) => {
