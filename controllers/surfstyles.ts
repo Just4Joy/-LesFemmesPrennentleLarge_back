@@ -21,19 +21,18 @@ surfStyleController.get(
   }
 );
 
-surfStyleController.get('/:idSurfStyle', (async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const { idSurfStyle } = req.params as ISurfStyle;
-  try {
-    const result: ISurfStyle = await SurfStyle.findSurfStyleById(idSurfStyle);
+surfStyleController.get(
+  '/:idSurfStyle',
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { idSurfStyle } = req.params as ISurfStyle;
+    try {
+      const result: ISurfStyle = await SurfStyle.findSurfStyleById(idSurfStyle);
 
-    res.status(200).json(result);
-  } catch (err) {
-    next(err);
+      res.status(200).json(result);
+    } catch (err) {
+      next(err);
+    }
   }
-}) as RequestHandler);
+);
 
 export default surfStyleController;

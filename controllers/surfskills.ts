@@ -22,19 +22,18 @@ surfskillsController.get(
   }
 );
 
-surfskillsController.get('/:idSurfSkill', (async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const { idSurfSkill } = req.params as ISurfSkill;
-  try {
-    const result = await SurfSkill.findOneById(idSurfSkill);
+surfskillsController.get(
+  '/:idSurfSkill',
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { idSurfSkill } = req.params as ISurfSkill;
+    try {
+      const result = await SurfSkill.findOneById(idSurfSkill);
 
-    res.status(200).json(result);
-  } catch (err) {
-    next(err);
+      res.status(200).json(result);
+    } catch (err) {
+      next(err);
+    }
   }
-}) as express.RequestHandler);
+);
 
 export default surfskillsController;
