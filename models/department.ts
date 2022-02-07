@@ -8,16 +8,16 @@ const findAll = () => {
     .then(([departments]) => departments);
 };
 
-const findDepartmentById = (id: number) => {
+const findOneById = (idDepartment: number) => {
   return connection
     .promise()
     .query<IDepartment[]>(`SELECT * FROM departments WHERE id_department = ?`, [
-      id,
+      idDepartment,
     ])
-    .then(([results]) => results[0]);
+    .then(([department]) => department[0]);
 };
 
 export default {
   findAll,
-  findDepartmentById,
+  findOneById,
 };

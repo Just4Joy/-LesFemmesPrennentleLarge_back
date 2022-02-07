@@ -6,7 +6,7 @@ import regionsController from '../controllers/regions';
 import sessionsController from '../controllers/sessions';
 import departmentsController from './departments';
 import weatherController from './weather';
-import surfskillsController from './surfskill';
+import surfskillsController from './surfskills';
 import authController from './auth';
 
 const setupRoutes = (app: express.Application) => {

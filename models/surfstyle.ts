@@ -6,15 +6,15 @@ const db = connection.promise();
 const findAll = () => {
   return db
     .query<ISurfStyle[]>(`SELECT * FROM surf_styles`)
-    .then(([results]) => results);
+    .then(([surfStyles]) => surfStyles);
 };
 
-const findSurfStyleById = (id: number) => {
+const findSurfStyleById = (idSurfStyle: number) => {
   return db
     .query<ISurfStyle[]>(`SELECT * FROM surf_styles WHERE id_surf_style = ?`, [
-      id,
+      idSurfStyle,
     ])
-    .then(([results]) => results[0]);
+    .then(([surfStyle]) => surfStyle[0]);
 };
 
 export default {

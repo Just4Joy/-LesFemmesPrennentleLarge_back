@@ -68,26 +68,26 @@ const validateLogin = (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const findMany = (sortBy = ''): Promise<IUser[]> => {
-  let sql = 'SELECT *, id_user AS id from users';
+const findAll = (sortBy: string = ''): Promise<IUser[]> => {
+  let sql: string = 'SELECT *, id_user AS id from users';
   if (sortBy) {
     sql += ` ORDER BY ${sortBy}`;
   }
   return connection
     .promise()
     .query<IUser[]>(sql)
-    .then(([results]) => results);
+    .then(([users]) => users);
 };
 
 const findByEmail = (email: string): Promise<IUser> => {
   return connection
     .promise()
     .query<IUser[]>('SELECT * FROM users where email = ?', [email])
-    .then(([results]) => results[0]);
+    .then(([user]) => user[0]);
 };
 
-const findOneById = (id: number, display?: string): Promise<IUser> => {
-  let sql =
+const findOneById = (idUser: number, display?: string): Promise<IUser> => {
+  let sql: string =
     'SELECT id_user, firstname, lastname, email, wahine, admin, id_user AS id from users WHERE id_user = ?';
 
   if (display === 'all') {
@@ -96,11 +96,11 @@ const findOneById = (id: number, display?: string): Promise<IUser> => {
 
   return connection
     .promise()
-    .query<IUser[]>(sql, [id])
-    .then(([results]) => results[0]);
+    .query<IUser[]>(sql, [idUser])
+    .then(([user]) => user[0]);
 };
 
-const update = (data: IUser, id: number) => {
+const update = (data: any, idUser: number) => {
   let sql = 'UPDATE users SET ';
   const sqlValues: Array<string | number | boolean> = [];
   let oneValue = false;
@@ -161,18 +161,18 @@ const update = (data: IUser, id: number) => {
     oneValue = true;
   }
   sql += ' WHERE id_user = ?';
-  sqlValues.push(id);
+  sqlValues.push(idUser);
 
   return connection
     .promise()
     .query<ResultSetHeader>(sql, sqlValues)
-    .then(([results]) => results.affectedRows === 1);
+    .then(([user]) => user.affectedRows === 1);
 };
 
-const destroy = (id: number) => {
+const destroy = (idUser: number) => {
   return connection
     .promise()
-    .query<IUser[]>('DELETE FROM users WHERE id_user = ?', [id]);
+    .query<IUser[]>('DELETE FROM users WHERE id_user = ?', [idUser]);
 };
 
 const create = async (payload: IUser) => {
@@ -199,38 +199,38 @@ const create = async (payload: IUser) => {
     );
 };
 
-const allUserBySession = (id_session: number) => {
+const findBySession = (idSession: number) => {
   return connection
     .promise()
-    .query<ResultSetHeader>(
+    .query<IUser[]>(
       'SELECT u.* FROM users as u INNER JOIN users_has_sessions ON users_has_sessions.id_user = u.id_user WHERE users_has_sessions.id_session = ?',
-      [id_session]
+      [idSession]
     )
-    .then(([result]) => result);
+    .then(([users]) => users);
 };
 
-const subscribe = (id_user: number, id_session: number) => {
+const subscribe = (idUser: number, idSession: number) => {
   return connection
     .promise()
     .query<ResultSetHeader>(
       'INSERT INTO users_has_sessions (id_user, id_session) VALUES (?,?)',
-      [id_user, id_session]
+      [idUser, idSession]
     )
-    .then(([result]) => result);
+    .then(([userHasSession]) => userHasSession.affectedRows === 1);
 };
 
-const unsubscribe = (id_user: number, id_session: number) => {
+const unsubscribe = (idUser: number, idSession: number) => {
   return connection
     .promise()
     .query<ResultSetHeader>(
       'DELETE FROM users_has_sessions WHERE id_user = ? AND id_session = ?',
-      [id_user, id_session]
+      [idUser, idSession]
     )
-    .then(([result]) => result);
+    .then(([userHasSession]) => userHasSession.affectedRows === 1);
 };
 
 const User = {
-  findMany,
+  findAll,
   create,
   findByEmail,
   findOneById,
@@ -239,7 +239,7 @@ const User = {
   validateUser,
   validateLogin,
   verifyPassword,
-  allUserBySession,
+  findBySession,
   subscribe,
   unsubscribe,
 };

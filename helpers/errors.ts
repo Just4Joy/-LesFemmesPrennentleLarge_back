@@ -16,9 +16,9 @@ const handleError = (
   res: Response,
   next: NextFunction
 ) => {
-  // gèrer l'environnement PROD/DEV
+  // manages the environment PROD/DEV
   const { statusCode = 500, message } = err;
-  // On affiche le message uniquement en environnement de DEV
+  // Prompts the message only on the Dev environment
   if (process.env.NODE_ENV === 'DEV') {
     res.status(statusCode).json({
       status: 'error',
