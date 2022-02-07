@@ -5,7 +5,7 @@ const db = connection.promise();
 
 const findAll = () => {
   const sql = `SELECT * FROM user_types`;
-  return db.query<IUserType[]>(sql).then(([results]) => results);
+  return db.query<IUserType[]>(sql).then(([userTypes]) => userTypes);
 };
 
 export default {

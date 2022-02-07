@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import express = require('express');
-import ISurfSkill from '../interfaces/ISurfskills';
-import SurfSkills from '../models/surfskill';
+import ISurfSkill from '../interfaces/ISurfskill';
+import SurfSkill from '../models/surfskill';
 
 const surfskillsController = express.Router();
 
@@ -12,9 +12,9 @@ surfskillsController.get('/coucou', (req: Request, res: Response) => {
 surfskillsController.get(
   '/',
   (req: Request, res: Response, next: NextFunction) => {
-    SurfSkills.findSurfSkills()
-      .then((surfskill: ISurfSkill[]) => {
-        res.json(surfskill);
+    SurfSkill.findAll()
+      .then((surfskills) => {
+        res.json(surfskills);
       })
       .catch((err) => {
         next(err);
@@ -23,11 +23,11 @@ surfskillsController.get(
 );
 
 surfskillsController.get(
-  '/:id',
+  '/:idSurfSkill',
   async (req: Request, res: Response, next: NextFunction) => {
-    const { id } = req.params as ISurfSkill;
+    const { idSurfSkill } = req.params as ISurfSkill;
     try {
-      const result: ISurfSkill = await SurfSkills.findSurfSkillsById(id);
+      const result = await SurfSkill.findOneById(idSurfSkill);
 
       res.status(200).json(result);
     } catch (err) {

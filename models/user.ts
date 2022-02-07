@@ -23,9 +23,11 @@ const verifyPassword = (password: string, hashedPassword: string) => {
 
 const validateUser = (req: Request, res: Response, next: NextFunction) => {
   let required: Joi.PresenceMode = 'optional';
+
   if (req.method === 'POST') {
     required = 'required';
   }
+
   const errors = Joi.object({
     firstname: Joi.string().max(100).presence(required),
     lastname: Joi.string().max(100).presence(required),
@@ -40,11 +42,14 @@ const validateUser = (req: Request, res: Response, next: NextFunction) => {
     id_department: Joi.number().optional(),
     id_surf_style: Joi.number().optional(),
     wahine: Joi.boolean().truthy(1).falsy(0).presence(required),
-    desc: Joi.string().max(255).optional(),
+    description: Joi.string().max(255).optional(),
     phone: Joi.string().max(10).presence(required),
+    id: Joi.number().optional(),
+    id_user: Joi.number().optional(),
+    admin: Joi.number().optional(),
   }).validate(req.body, { abortEarly: false }).error;
   if (errors) {
-    console.log(errors.message);
+    console.log(errors, 'VALIDATION');
     next(new ErrorHandler(422, errors.message));
   } else {
     next();
@@ -63,91 +68,169 @@ const validateLogin = (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const findMany = () => {
-  const sql = 'SELECT * from users';
+const findAll = (sortBy: string = ''): Promise<IUser[]> => {
+  let sql: string = 'SELECT *, id_user AS id from users';
+  if (sortBy) {
+    sql += ` ORDER BY ${sortBy}`;
+  }
   return connection
     .promise()
-    .query<IUser[]>(sql, [])
-    .then(([results]) => results);
+    .query<IUser[]>(sql)
+    .then(([users]) => users);
 };
 
 const findByEmail = (email: string): Promise<IUser> => {
   return connection
     .promise()
     .query<IUser[]>('SELECT * FROM users where email = ?', [email])
-    .then(([results]) => results[0]);
+    .then(([user]) => user[0]);
 };
 
-const findOneById = (id: number): Promise<IUser> => {
+const findOneById = (idUser: number, display?: string): Promise<IUser> => {
+  let sql: string =
+    'SELECT id_user, firstname, lastname, email, wahine, admin, id_user AS id from users WHERE id_user = ?';
+
+  if (display === 'all') {
+    sql = 'SELECT * from users WHERE id_user = ?';
+  }
+
   return connection
     .promise()
-    .query<IUser[]>('SELECT * FROM users WHERE id_user = ?', [id])
-    .then(([results]) => results[0]);
+    .query<IUser[]>(sql, [idUser])
+    .then(([user]) => user[0]);
 };
 
-const update = (data: IUser, id: number) => {
+const update = (data: any, idUser: number) => {
+  let sql = 'UPDATE users SET ';
+  const sqlValues: Array<string | number | boolean> = [];
+  let oneValue = false;
+
+  if (data.firstname) {
+    sql += 'firstname = ?';
+    sqlValues.push(data.firstname);
+    oneValue = true;
+  }
+  if (data.lastname) {
+    sql += oneValue ? ', lastname = ?' : 'lastname = ?';
+    sqlValues.push(data.lastname);
+    oneValue = true;
+  }
+  if (data.city) {
+    sql += oneValue ? ', city = ?' : 'city = ?';
+    sqlValues.push(data.city);
+    oneValue = true;
+  }
+  if (data.description) {
+    sql += oneValue ? ', description = ?' : 'description = ?';
+    sqlValues.push(data.description);
+    oneValue = true;
+  }
+  if (data.favorite_spot) {
+    sql += oneValue ? ', favorite_spot = ?' : 'favorite_spot = ?';
+    sqlValues.push(data.favorite_spot);
+    oneValue = true;
+  }
+  if (data.id_department) {
+    sql += oneValue ? ', id_department = ?' : 'id_department = ?';
+    sqlValues.push(data.id_department);
+    oneValue = true;
+  }
+  if (data.id_surf_style) {
+    sql += oneValue ? ', id_surf_style = ?' : 'id_surf_style = ?';
+    sqlValues.push(data.id_surf_style);
+    oneValue = true;
+  }
+  if (data.profile_pic) {
+    sql += oneValue ? ', profile_pic = ?' : 'profile_pic = ?';
+    sqlValues.push(data.profile_pic);
+    oneValue = true;
+  }
+  if (data.email) {
+    sql += oneValue ? ', email = ?' : 'email = ?';
+    sqlValues.push(data.email);
+    oneValue = true;
+  }
+  if (data.wahine != undefined) {
+    sql += oneValue ? ', wahine = ?' : 'wahine = ?';
+    sqlValues.push(data.wahine);
+    oneValue = true;
+  }
+  if (data.admin != undefined) {
+    sql += oneValue ? ', admin = ?' : 'admin = ?';
+    sqlValues.push(data.admin);
+    oneValue = true;
+  }
+  sql += ' WHERE id_user = ?';
+  sqlValues.push(idUser);
+
   return connection
     .promise()
-    .query<ResultSetHeader>('UPDATE users SET ? WHERE id_user = ?', [data, id])
-    .then(([results]) => results);
+    .query<ResultSetHeader>(sql, sqlValues)
+    .then(([user]) => user.affectedRows === 1);
 };
 
-const destroy = (id: number) => {
+const destroy = (idUser: number) => {
   return connection
     .promise()
-    .query<IUser[]>('DELETE FROM users WHERE id_user = ?', [id]);
+    .query<IUser[]>('DELETE FROM users WHERE id_user = ?', [idUser]);
 };
 
 const create = async (payload: IUser) => {
-
   const createdDateServ = new Date()
     .toISOString()
     .slice(0, 19)
     .replace('T', ' ');
-  const { firstname, lastname, email, password, wahine, phone } =
-    payload;
+  const { firstname, lastname, email, password, wahine, phone } = payload;
   const hashedPassword = await hashPassword(password);
 
   return connection
     .promise()
     .query<ResultSetHeader>(
       'INSERT INTO users (firstname, lastname, email, password, created_date, wahine, phone) VALUES (?,?,?,?,?,?,?)',
-      [firstname, lastname, email, hashedPassword, createdDateServ, wahine, phone]
+      [
+        firstname,
+        lastname,
+        email,
+        hashedPassword,
+        createdDateServ,
+        wahine,
+        phone,
+      ]
     );
 };
 
-const allUserBySession = (id_session: number) => {
+const findBySession = (idSession: number) => {
   return connection
     .promise()
-    .query<ResultSetHeader>(
+    .query<IUser[]>(
       'SELECT u.* FROM users as u INNER JOIN users_has_sessions ON users_has_sessions.id_user = u.id_user WHERE users_has_sessions.id_session = ?',
-      [id_session]
+      [idSession]
     )
-    .then(([result]) => result);
+    .then(([users]) => users);
 };
 
-const subscribe = (id_user: number, id_session: number) => {
+const subscribe = (idUser: number, idSession: number) => {
   return connection
     .promise()
     .query<ResultSetHeader>(
       'INSERT INTO users_has_sessions (id_user, id_session) VALUES (?,?)',
-      [id_user, id_session]
+      [idUser, idSession]
     )
-    .then(([result]) => result);
+    .then(([userHasSession]) => userHasSession.affectedRows === 1);
 };
 
-const unsubscribe = (id_user: number, id_session: number) => {
+const unsubscribe = (idUser: number, idSession: number) => {
   return connection
     .promise()
     .query<ResultSetHeader>(
       'DELETE FROM users_has_sessions WHERE id_user = ? AND id_session = ?',
-      [id_user, id_session]
+      [idUser, idSession]
     )
-    .then(([result]) => result);
+    .then(([userHasSession]) => userHasSession.affectedRows === 1);
 };
 
 const User = {
-  findMany,
+  findAll,
   create,
   findByEmail,
   findOneById,
@@ -156,7 +239,7 @@ const User = {
   validateUser,
   validateLogin,
   verifyPassword,
-  allUserBySession,
+  findBySession,
   subscribe,
   unsubscribe,
 };

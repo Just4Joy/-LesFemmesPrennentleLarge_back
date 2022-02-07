@@ -5,15 +5,16 @@ import { ResultSetHeader } from 'mysql2';
 import { ErrorHandler } from '../helpers/errors';
 import { Request, Response, NextFunction } from 'express';
 
-const findSession = (
+const findAll = (
   region: number,
   limit: number,
   date: string,
   pages: number,
-  wahine: number
-) => {
+  wahine: number,
+  sortBy = ''
+): Promise<ISession[]> => {
   let sql =
-    'SELECT id_session, sessions.name, DATE_FORMAT(date, "%Y/%m/%d %H:%i:%s") AS date, spot_name, address, nb_hiki_max, sessions.id_department, id_surf_style, carpool, id_user, DATE_FORMAT(date, "%d/%m/%Y") AS nice_date, DATE_FORMAT(date, "%kh%i") AS nice_time FROM sessions';
+    'SELECT id_session AS id, id_session, sessions.name, DATE_FORMAT(date, "%Y/%m/%d %H:%i:%s") AS date, spot_name, address, nb_hiki_max, sessions.id_department, id_surf_style, carpool, id_user, DATE_FORMAT(date, "%d/%m/%Y") AS nice_date, DATE_FORMAT(date, "%kh%i") AS nice_time FROM sessions';
   const sqlValue: Array<string | number> = [];
 
   if (wahine) {
@@ -46,14 +47,14 @@ const findSession = (
       sqlValue.push(9, pages);
     }
   }
-
-  // console.log(sql);
-  // console.log(sqlValue);
+  if (sortBy) {
+    sql += ` ORDER BY ${sortBy}`;
+  }
 
   return connection
     .promise()
     .query<ISession[]>(sql, sqlValue)
-    .then(([results]) => results);
+    .then(([sessions]) => sessions);
 };
 
 const create = (session: ISession): Promise<number> => {
@@ -84,44 +85,82 @@ const create = (session: ISession): Promise<number> => {
         id_user,
       ]
     )
-    .then(([results]) => results.insertId);
+    .then(([session]) => session.insertId);
 };
 
-const findOne = (id_session: number) => {
+const findOne = (idSession: number, display?: string) => {
+  let sql: string =
+    'SELECT id_session AS id, sessions.name, DATE_FORMAT(date, "%Y/%m/%d %H:%i:%s") AS date, spot_name, address, nb_hiki_max, sessions.id_department, id_surf_style, carpool, id_user, DATE_FORMAT(date, "%d/%m/%Y") AS nice_date, DATE_FORMAT(date, "%kh%i") AS nice_time FROM sessions WHERE id_session = ?';
+
+  if (display === 'all') {
+    sql =
+      'SELECT *, DATE_FORMAT(date, "%d/%m/%Y") AS nice_date, DATE_FORMAT(date, "%kh%i") AS nice_time FROM sessions WHERE id_session = ?';
+  }
+
   return connection
     .promise()
-    .query<ISession[]>(
-      'SELECT *, DATE_FORMAT(date, "%d/%m/%Y") AS nice_date, DATE_FORMAT(date, "%kh%i") AS nice_time FROM sessions WHERE id_session = ?',
-      [id_session]
-    )
-    .then(([results]) => results[0]);
+    .query<ISession[]>(sql, [idSession])
+    .then(([session]) => session[0]);
 };
 
 const update = (
   id_session: number,
   newAttributes: ISession
 ): Promise<boolean> => {
+  let sql = 'UPDATE sessions SET ';
+  const sqlValues: Array<string | number | boolean | Date> = [];
+  let oneValue = false;
+
+  if (newAttributes.name) {
+    sql += 'name = ? ';
+    sqlValues.push(newAttributes.name);
+    oneValue = true;
+  }
+  if (newAttributes.spot_name) {
+    sql += oneValue ? ', spot_name = ? ' : ' spot_name = ? ';
+    sqlValues.push(newAttributes.spot_name);
+    oneValue = true;
+  }
+  if (newAttributes.date) {
+    sql += oneValue ? ', date = ? ' : ' date = ? ';
+    sqlValues.push(newAttributes.date);
+    oneValue = true;
+  }
+  if (newAttributes.address) {
+    sql += oneValue ? ', address = ? ' : ' address = ? ';
+    sqlValues.push(newAttributes.address);
+    oneValue = true;
+  }
+  if (newAttributes.nb_hiki_max) {
+    sql += oneValue ? ', nb_hiki_max = ? ' : ' nb_hiki_max = ? ';
+    sqlValues.push(newAttributes.nb_hiki_max);
+    oneValue = true;
+  }
+  if (newAttributes.carpool != undefined) {
+    sql += oneValue ? ', carpool = ? ' : ' carpool = ? ';
+    sqlValues.push(newAttributes.carpool);
+    oneValue = true;
+  }
+  sql += ' WHERE id_session = ?';
+  sqlValues.push(id_session);
+
   return connection
     .promise()
-    .query<ResultSetHeader>('UPDATE sessions SET ? WHERE id_session = ?', [
-      newAttributes,
-      id_session,
-    ])
-    .then(([results]) => results.affectedRows === 1);
+    .query<ResultSetHeader>(sql, sqlValues)
+    .then(([session]) => session.affectedRows === 1);
 };
 
 const sessionExists = (req: Request, res: Response, next: NextFunction) => {
-  // Récupèrer l'id user de req.params
+  // Retrieves the idUser from req.params
   const { idSession } = req.params;
-
-  // Vérifier si le user existe
+  // Verifies if the user exists
   findOne(Number(idSession))
     .then((sessionExists) => {
-      // Si non, => erreur
+      // If false, => error
       if (!sessionExists) {
         next(new ErrorHandler(404, `This session doesn't exist`));
       }
-      // Si oui => next
+      // If true => next
       else {
         next();
       }
@@ -144,41 +183,34 @@ const validateSession = (req: Request, res: Response, next: NextFunction) => {
     id_surf_style: Joi.number().integer().presence(required),
     carpool: Joi.number().integer().presence(required),
     id_user: Joi.number().integer().presence(required),
+    nice_time: Joi.string().optional(),
+    nice_date: Joi.string().optional(),
+    id: Joi.number().integer().optional(),
   }).validate(req.body, { abortEarly: false }).error;
   if (errors) {
+    console.log(errors);
     next(new ErrorHandler(422, errors.message));
   } else {
     next();
   }
 };
 
-const checkIfUserHasSubscribe = (id_user: number, id_session: number) => {
+const checkIfUserHasSubscribe = (idUser: number, idSession: number) => {
   return connection
     .promise()
     .query<ResultSetHeader>(
       'SELECT * FROM users_has_sessions WHERE id_user = ? AND id_session = ?',
-      [id_user, id_session]
+      [idUser, idSession]
     )
-    .then(([result]) => result);
+    .then(([userHasSession]) => userHasSession.affectedRows === 1);
 };
 
 const destroy = (id: number) => {
   return connection
     .promise()
-    .query<ISession[]>('DELETE FROM sessions WHERE id_session = ?', [id]);
+    .query<ResultSetHeader>('DELETE FROM sessions WHERE id_session = ?', [id])
+    .then(([session]) => session.affectedRows > 0);
 };
-
-// const findSessionByUser = (id: number) => {
-//   return connection
-//     .promise()
-//     .query<ISession[]>(
-//       `SELECT s.* FROM sessions as s
-//   INNER JOIN users_has_sessions as us ON s.id_session = us.id_session
-//   WHERE us.id_user = ?`,
-//       [id]
-//     )
-//     .then(([results]) => results);
-// };
 
 const findSessionsByIdUser = (idUser: number) => {
   return connection
@@ -191,14 +223,13 @@ const findSessionsByIdUser = (idUser: number) => {
       AND us.id_user = ?`,
       [idUser]
     )
-    .then(([results]) => {
-      console.log(results);
-      return results;
+    .then(([sessions]) => {
+      return sessions;
     });
 };
 
 export default {
-  findSession,
+  findAll,
   create,
   validateSession,
   findOne,
@@ -207,5 +238,4 @@ export default {
   checkIfUserHasSubscribe,
   destroy,
   findSessionsByIdUser,
-  // findSessionByUser,
 };

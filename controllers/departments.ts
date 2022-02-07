@@ -19,21 +19,20 @@ departmentsController.get(
   }
 );
 
-departmentsController.get('/:id_department', (async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const { id_department } = req.params as IDepartment;
-  try {
-    const result: IDepartment = await Department.findDepartmentById(
-      id_department
-    );
+departmentsController.get(
+  '/:idDepartment',
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { idDepartment } = req.params as IDepartment;
+    try {
+      const department: IDepartment = await Department.findOneById(
+        idDepartment
+      );
 
-    res.status(200).json(result);
-  } catch (err) {
-    next(err);
+      res.status(200).json(department);
+    } catch (err) {
+      next(err);
+    }
   }
-}) as RequestHandler);
+);
 
 export default departmentsController;

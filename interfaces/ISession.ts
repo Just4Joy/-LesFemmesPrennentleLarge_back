@@ -3,7 +3,7 @@ import { RowDataPacket } from 'mysql2';
 export default interface ISession extends RowDataPacket {
   id_session: number;
   name: string;
-  date: Date;
+  date: string;
   spot_name: string;
   address: string;
   nb_hiki_max: number;
@@ -11,4 +11,5 @@ export default interface ISession extends RowDataPacket {
   id_surf_style: number;
   carpool: number;
   id_user: number;
+  display?: string;
 }
