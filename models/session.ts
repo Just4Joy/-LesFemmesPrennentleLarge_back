@@ -36,7 +36,8 @@ const findAll = (
   }
 
   if (limit === 3) {
-    sql += ' ORDER BY date DESC LIMIT ?';
+    sql += ' WHERE date > NOW()';
+    sql += ' ORDER BY date ASC LIMIT ?';
     sqlValue.push(3);
   } else {
     if (pages === 0) {
