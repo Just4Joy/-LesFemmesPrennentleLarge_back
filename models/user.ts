@@ -47,6 +47,8 @@ const validateUser = (req: Request, res: Response, next: NextFunction) => {
     id: Joi.number().optional(),
     id_user: Joi.number().optional(),
     admin: Joi.number().optional(),
+    wahine_request: Joi.boolean().truthy(1).falsy(0).optional()
+
   }).validate(req.body, { abortEarly: false }).error;
   if (errors) {
     console.log(errors, 'VALIDATION');
@@ -88,7 +90,7 @@ const findByEmail = (email: string): Promise<IUser> => {
 
 const findOneById = (idUser: number, display?: string): Promise<IUser> => {
   let sql: string =
-    'SELECT id_user, firstname, lastname, email, wahine, admin, id_user AS id from users WHERE id_user = ?';
+    'SELECT id_user, firstname, lastname, email, wahine, admin, wahine_request, id_user AS id from users WHERE id_user = ?';
 
   if (display === 'all') {
     sql = 'SELECT * from users WHERE id_user = ?';
@@ -160,6 +162,13 @@ const update = (data: any, idUser: number) => {
     sqlValues.push(data.admin);
     oneValue = true;
   }
+  if (data.wahine_request != undefined) {
+    sql += oneValue ? ', wahine_request = ?' : 'wahine_request = ?';
+    sqlValues.push(data.wahine_request);
+    oneValue = true;
+  }
+
+
   sql += ' WHERE id_user = ?';
   sqlValues.push(idUser);
 
