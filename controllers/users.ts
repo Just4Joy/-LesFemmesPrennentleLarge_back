@@ -9,6 +9,9 @@ import ISession from '../interfaces/ISession';
 import Session from '../models/session';
 import { formatSortString } from '../helpers/functions';
 import { ErrorHandler } from '../helpers/errors';
+import nodemailer from 'nodemailer';
+import smtpTransport from 'nodemailer-smtp-transport'
+
 
 const userController = express.Router();
 
@@ -71,10 +74,11 @@ userController.put(
     try {
       const { idUser } = req.params as IUser;
       const foundUser: IUser = await User.findOneById(idUser);
-
+      
       if (foundUser) {
+       
         const updatedUser = await User.update(req.body, idUser);
-
+        console.log(updatedUser)
         if (updatedUser) {
           res.status(200).json({ id: idUser, ...req.body }); // react-admin needs this response
         } else {
@@ -176,5 +180,37 @@ userController.delete(
     }
   }
 );
+
+userController.get('/mail/:idUser',
+async (req: Request, res: Response) => {
+  const { idUser } = req.params as IUser
+  let transporter = nodemailer.createTransport(smtpTransport({
+    service: 'gmail',
+    host: 'smtp.gmail.com',
+    auth: {
+      user: 'LFPLL33@gmail.com',
+      pass: process.env.mailpassword
+    }
+  }));
+  
+  let mailOptions = {
+    from: 'LFPLL33@gmail.com',
+    to:   'lesfemmesprennentlelarge33@gmail.com',
+    subject: `L' utilisatrice ${idUser} veut devenir WAHINE`,
+    text: `L' utilisatrice ${idUser} veut devenir WAHINE`
+  };
+  
+  transporter.sendMail(mailOptions, function(error, info){
+    if (error) {
+      console.log(error);
+      
+      return res.status(500).send('Something went wrong')
+    } else {
+      console.log('Email sent: ' + info.response);
+      return res.status(200).send('E-mail sent');
+      
+    }
+  });  
+});
 
 export default userController;

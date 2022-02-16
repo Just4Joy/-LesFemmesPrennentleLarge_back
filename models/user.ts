@@ -151,6 +151,13 @@ const update = (data: any, idUser: number) => {
     sqlValues.push(data.email);
     oneValue = true;
   }
+
+  if (data.wahine_request != undefined) {
+    sql += oneValue ? ', wahine_request = ?' : 'wahine_request = ?';
+    sqlValues.push(data.wahine_request);
+    oneValue = true;
+  }
+  
   if (data.wahine != undefined) {
     sql += oneValue
       ? ', wahine = ?, wahine_request = ?'
@@ -164,6 +171,8 @@ const update = (data: any, idUser: number) => {
     sqlValues.push(data.admin);
     oneValue = true;
   }
+
+
 
   sql += ' WHERE id_user = ?';
   sqlValues.push(idUser);
